@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JW Aero</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/path/to/local/jquery.min.js"><\/script>')</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body{
+            margin: 0 auto;
+            /* font-family: Frutiger-Normal, "HarmonyOS Sans SC"; */
+            font-family: Segoe UI, 'HarmonyOS Sans SC';
+            background: rgba(205,205,205,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="satu">
+        <div id="jw_aero">
+            <div id="title">
+                <p id="title_text" style="float: left;margin-block-start: 0;z-index: 1;">🖼️ Image Viewer</p>
+                <div class="btn" style="z-index: 2;">
+                    <!-- <div></div>
+                    <div></div> -->
+                    <!-- <div style="background: red;">×</div>&nbsp;
+                    <div style="background: rgb(0, 192, 0);">+</div>&nbsp;
+                    <div style="background: rgb(0, 128, 255);line-height: 0.8em;">-</div> -->
+                    <div style="background: linear-gradient(0deg, rgba(255,0,0,1) 0%, rgba(255,70,50,1) 49%, rgba(255,140,100,1) 49%, rgba(255,210,150,1) 100%);">×</div>&nbsp;
+                    <div style="background: linear-gradient(0deg, rgba(0,176,0,1) 0%, rgba(50,202,70,1) 49%, rgba(100,228,140,1) 49%, rgba(150,255,210,1) 100%);">+</div>&nbsp;
+                    <div style="background: linear-gradient(0deg, rgba(0,128,255,1) 0%, rgba(50,156,255,1) 49%, rgba(100,184,255,1) 49%, rgba(150,212,255,1) 100%);line-height: 0.8em;">-</div>
+                </div>
+            </div>
+            <div id="imgs">
+                <!-- <img id="img-avatar" style="max-width: 100%;max-height: 30em;"> -->
+                <img id="img-avatar" style="max-width: 100%;">
+            </div>
+            <div id="box" style="text-align: center;">
+                <!-- Sarahah! -->
+                <input id="chooseImage" type="file" name="file" accept="image/*">
+                <button class="file-input-trigger" style="font-family: Segoe UI, 'HarmonyOS Sans SC';">选择图片</button>
+                <!-- <input type="button" value=""> -->
+            </div>
+    
+            <script>
+                $("#chooseImage").on('change', function(){
+                    let file = this.files[0];
+                    if (file) {
+                        let reader = new FileReader();
+                        reader.onload = function(e) {
+                            $('#img-avatar').attr('src', e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                $('.file-input-trigger').on('click', function() {
+                    $('#chooseImage').trigger('click');
+                });
+            </script>
+        </div>
+    </div>
+    
+    <div class="dua">
+        <br>
+        窗口标题&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;
+        <input type="text" id="textInput" oninput="updateP(this.value)">
+        <br>
+        <span style="font-size:0.625em">⚠️ 输入文本后，窗口标题将自动更改为文本框内容</span>
+        <!-- <p id="displayText">初始内容</p> -->
+        <br><br>
+        <div id="ctrls">
+            图片透明度
+            &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;
+            <!-- 图片透明度透明度&nbsp;&nbsp;&nbsp;&nbsp;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
+            <label>
+                <input type="range" id="slider" min="0" max="1" step="0.01" value="1">
+            </label>
+            <label>
+                <input type="number" id="input_num" min="0" max="1" step="0.01" value="1">
+            </label>
+        </div>
+        <br>
+        <div id="ctrls_2">
+            颜色<!-- 透明度&nbsp;&nbsp;&nbsp;&nbsp; -->
+            <!-- &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
+            <br>
+            R
+            <label>
+                <input type="range" id="slider_r" min="0" max="255" step="1" value="171">
+            </label>
+            <label>
+                <input type="number" id="input_r" min="0" max="255" step="1" value="171">
+            </label>
+            <br>
+            <!-- &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
+            G
+            <label>
+                <input type="range" id="slider_g" min="0" max="255" step="1" value="205">
+            </label>
+            <label>
+                <input type="number" id="input_g" min="0" max="255" step="1" value="205">
+            </label>
+            <br>
+            <!-- &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
+            B
+            <label>
+                <input type="range" id="slider_b" min="0" max="255" step="1" value="249">
+            </label>
+            <label>
+                <input type="number" id="input_b" min="0" max="255" step="1" value="249">
+            </label>
+            <br>
+            <!-- &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
+            A<!-- 透明度&nbsp;&nbsp;&nbsp;&nbsp; -->
+            <label>
+                <input type="range" id="slider_a" min="0" max="1" step="0.01" value="0.5">
+            </label>
+            <label>
+                <input type="number" id="input_a" min="0" max="1" step="0.01" value="0.5">
+            </label>
+        </div>
+        <br>
+        <script>
+            // 获取元素
+            const target = document.getElementById('img-avatar');
+            const slider = document.getElementById('slider');
+            const input = document.getElementById('input_num');
+
+            // 滑动条改变时更新透明度和输入框的值
+            slider.addEventListener('input', () => {
+                const opacity = slider.value;
+                target.style.opacity = opacity;
+                input.value = opacity;
+            });
+
+            // 输入框改变时更新透明度和滑动条的值
+            input.addEventListener('input', () => {
+                const opacity = input.value;
+                target.style.opacity = opacity;
+                slider.value = opacity;
+            });
+        </script>
+        <script>
+            const trg = document.getElementById('jw_aero');
+            const redSlider = document.getElementById('slider_r');
+            const greenSlider = document.getElementById('slider_g');
+            const blueSlider = document.getElementById('slider_b');
+            const alphaSlider = document.getElementById('slider_a');
+            const redValue = document.getElementById('input_r');
+            const greenValue = document.getElementById('input_g');
+            const blueValue = document.getElementById('input_b');
+            const alphaValue = document.getElementById('input_a');
+
+            // 更新背景颜色
+            function updateBackgroundColor() {
+                const red = redSlider.value;
+                const green = greenSlider.value;
+                const blue = blueSlider.value;
+                const alpha = alphaSlider.value;
+
+                // 设置目标控件的背景颜色
+                trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+
+                // 更新显示的值
+                redValue.value = red;
+                greenValue.value = green;
+                blueValue.value = blue;
+                alphaValue.value = alpha;
+            }
+
+            // 更新背景颜色
+            function updateBackgroundColor_2() {
+                const red = redValue.value;
+                const green = greenValue.value;
+                const blue = blueValue.value;
+                const alpha = alphaValue.value;
+
+                // 设置目标控件的背景颜色
+                trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+
+                // 更新显示的值
+                redSlider.value = red;
+                greenSlider.value = green;
+                blueSlider.value = blue;
+                alphaSlider.value = alpha;
+            }
+
+
+            // 监听滑动条的变化
+            redSlider.addEventListener('input', updateBackgroundColor);
+            greenSlider.addEventListener('input', updateBackgroundColor);
+            blueSlider.addEventListener('input', updateBackgroundColor);
+            alphaSlider.addEventListener('input', updateBackgroundColor);
+
+
+            redValue.addEventListener('input', updateBackgroundColor_2);
+            greenValue.addEventListener('input', updateBackgroundColor_2);
+            blueValue.addEventListener('input', updateBackgroundColor_2);
+            alphaValue.addEventListener('input', updateBackgroundColor_2);
+
+            // 初始化
+            updateBackgroundColor();
+            updateBackgroundColor_2();
+        </script>
+        <script>
+            function updateP(newValue) {
+                document.getElementById('title_text').textContent = newValue;
+            }
+        </script>
+        <button id="exportButton">导出对话框为图片</button>
+        <script>
+            document.getElementById('exportButton').addEventListener('click', function() {
+                var element = document.getElementById('jw_aero'); // 获取你想要导出的 <div> 的 ID
+                html2canvas(element, {
+                    useCORS: true, // 允许跨域请求，如果div中有来自不同域名的资源
+                    backgroundColor: null, // 设置背景颜色为null以保持透明度
+                    scale: 2, // 可选：提高输出图像的质量
+                    dpi: window.devicePixelRatio // 根据设备像素比调整分辨率
+                }).then(function(canvas) {
+                    // 将 canvas 转换为图片，并创建一个下载链接
+                    var imgData = canvas.toDataURL('image/png');
+                    var link = document.createElement('a');
+                    link.href = imgData;
+                    link.download = 'exported-image.png'; // 设置文件名
+                    link.click();
+                });
+            });
+        </script>
+        <br><br>
+        <a href="../Classic/index.html">JW Classic (Win9x-like)</a>
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JW Classic</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/path/to/local/jquery.min.js"><\/script>')</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body{
+            margin: 0 auto;
+            font-family: Unifont, DotGothic16;
+            background: #cccccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="jw_classic" class="satu">
+        <div id="title">
+            <p id="title_text" style="float: left;margin-block-start: 0;">🖼️Image Viewer</p>
+            <div class="btn">
+                <!-- <div></div>
+                <div></div> -->
+                <div>×</div>
+            </div>
+        </div>
+        <div style="text-align: center;padding: 2.5%;">
+            <img id="img-avatar" style="max-width: 100%;max-height: 30em;">
+        </div>
+        <div id="box" style="text-align: center;">
+            <!-- Sarahah! -->
+            <input id="chooseImage" type="file" name="file" accept="image/*">
+            <button class="file-input-trigger" style="font-family: Unifont, DotGothic16;">選択圖片</button>
+            <!-- <input type="button" value=""> -->
+        </div>
+
+        <script>
+            $("#chooseImage").on('change', function(){
+                let file = this.files[0];
+                if (file) {
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#img-avatar').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            $('.file-input-trigger').on('click', function() {
+                $('#chooseImage').trigger('click');
+            });
+        </script>
+    </div>
+    <div class="dua">
+        <br>
+        窗口标题&NonBreakingSpace;&NonBreakingSpace;
+        <input type="text" id="textInput" oninput="updateP(this.value)">
+        <br>
+        <span style="font-size:0.625em">⚠️ 输入文本后，窗口标题将自动更改为文本框内容</span>
+        <!-- <p id="displayText">初始内容</p> -->
+    
+        <script>
+            function updateP(newValue) {
+                document.getElementById('title_text').textContent = newValue;
+            }
+        </script>
+        <br><br>
+        <div id="ctrls">
+            图片透明度&NonBreakingSpace;&NonBreakingSpace;
+            <label>
+                <input type="range" id="slider" min="0" max="1" step="0.01" value="1">
+            </label>
+            <label>
+                <input type="number" id="input_num" min="0" max="1" step="0.01" value="1">
+            </label>
+        </div>
+        <script>
+            // 获取元素
+            const target = document.getElementById('img-avatar');
+            const slider = document.getElementById('slider');
+            const input = document.getElementById('input_num');
+
+            // 滑动条改变时更新透明度和输入框的值
+            slider.addEventListener('input', () => {
+                const opacity = slider.value;
+                target.style.opacity = opacity;
+                input.value = opacity;
+            });
+
+            // 输入框改变时更新透明度和滑动条的值
+            input.addEventListener('input', () => {
+                const opacity = input.value;
+                target.style.opacity = opacity;
+                slider.value = opacity;
+            });
+        </script>
+        <br>
+        <div id="ctrls_2">
+            颜色
+            <br>
+            R
+            <label>
+                <input type="range" id="slider_r" min="0" max="255" step="1" value="0">
+            </label>
+            <label>
+                <input type="number" id="input_r" min="0" max="255" step="1" value="0">
+            </label>
+            <br>
+            <!-- &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
+            G
+            <label>
+                <input type="range" id="slider_g" min="0" max="255" step="1" value="0">
+            </label>
+            <label>
+                <input type="number" id="input_g" min="0" max="255" step="1" value="0">
+            </label>
+            <br>
+            <!-- &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
+            B
+            <label>
+                <input type="range" id="slider_b" min="0" max="255" step="1" value="192">
+            </label>
+            <label>
+                <input type="number" id="input_b" min="0" max="255" step="1" value="192">
+            </label>
+            <br>
+            <!-- &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
+        </div>
+        <script>
+            const trg = document.getElementById('title');
+            const redSlider = document.getElementById('slider_r');
+            const greenSlider = document.getElementById('slider_g');
+            const blueSlider = document.getElementById('slider_b');
+            const redValue = document.getElementById('input_r');
+            const greenValue = document.getElementById('input_g');
+            const blueValue = document.getElementById('input_b');
+
+            // 更新背景颜色
+            function updateBackgroundColor() {
+                const red = redSlider.value;
+                const green = greenSlider.value;
+                const blue = blueSlider.value;
+
+                // 设置目标控件的背景颜色
+                trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue})`;
+
+                // 更新显示的值
+                redValue.value = red;
+                greenValue.value = green;
+                blueValue.value = blue;
+            }
+
+            // 更新背景颜色
+            function updateBackgroundColor_2() {
+                const red = redValue.value;
+                const green = greenValue.value;
+                const blue = blueValue.value;
+
+                // 设置目标控件的背景颜色
+                trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue})`;
+
+                // 更新显示的值
+                redSlider.value = red;
+                greenSlider.value = green;
+                blueSlider.value = blue;
+            }
+
+
+            // 监听滑动条的变化
+            redSlider.addEventListener('input', updateBackgroundColor);
+            greenSlider.addEventListener('input', updateBackgroundColor);
+            blueSlider.addEventListener('input', updateBackgroundColor);
+            
+
+            redValue.addEventListener('input', updateBackgroundColor_2);
+            greenValue.addEventListener('input', updateBackgroundColor_2);
+            blueValue.addEventListener('input', updateBackgroundColor_2);
+            
+            // 初始化
+            updateBackgroundColor();
+            updateBackgroundColor_2();
+        </script>
+        <br>
+        <button id="exportButton">导出对话框为图片</button>
+        <script>
+            document.getElementById('exportButton').addEventListener('click', function() {
+                var element = document.getElementById('jw_classic'); // 获取你想要导出的 <div> 的 ID
+                html2canvas(element,{scale:3}).then(function(canvas) {
+                    // 将 canvas 转换为图片，并创建一个下载链接
+                    var imgData = canvas.toDataURL('image/png');
+                    var link = document.createElement('a');
+                    link.href = imgData;
+                    link.download = 'exported-image.png'; // 设置文件名
+                    link.click();
+                });
+            });
+        </script>
+        <br><br>
+        <a href="../Aero/index.html">JW Aero (Win7-like)</a>
+    </div>
+</body>
+</html>

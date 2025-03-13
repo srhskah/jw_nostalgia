@@ -1,0 +1,95 @@
+.satu, .dua{
+    width: 100%;
+    text-align: center;
+    position: relative;
+    float: left;
+}
+
+/* .satu{
+    position: relative;
+} */
+
+#jw_aero{
+    background: rgba(171,205,249,0.5);
+    /* background: rgba(255,255,255,0.25); */
+    /* border: 2px solid black; */
+    min-width: 20em;
+    width:25%;
+    /* margin-left: 25%; */
+    margin-top: 5%; 
+    border: 0.2em solid rgba(240,240,240,0.25);
+    border-radius: 0.5em;
+    /*父元素position: relative时，保持水平垂直居中*/
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%); /* 向左回退自身宽度的50%
+    /* Simulate an outset effect using shadows */
+    /* box-shadow: 
+        0 0.15em 0.15em rgba(0,0,0,0.3),
+        0 -0.15em 0.15em rgba(255,255,255,0.9); */
+}
+
+#jw_aero>div{
+    margin: 0.2em;
+}
+
+#title{
+    /* background: #0000cc; */
+    color: black;
+    font-size: 0.8em;
+    padding: 0.2em 0.2em 0.3em;
+    height: 1.5em;
+    line-height: 1.6em;
+}
+
+#imgs{
+    text-align: center;
+    padding: 2.5%;
+    background-color: rgba(255,255,255,0.75);
+    border-radius: 0.25em;
+}
+
+.btn{
+    margin: 0.1em;
+}
+
+.btn div{
+    margin: 0 0.05em 0;
+    float:right;
+    /* padding: 0.1em; */
+    width: 1em;
+    height: 1em;
+    border-radius: 1em;
+    /* width: 1.2em; */
+    /* height: 1.2em; */
+    background: #cdcdcd;
+    text-align: center;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:larger;
+    line-height: 1em;
+    color: white;
+    border: 0.2em solid white;
+    /* box-shadow: 0.1em 0.1em 0.1em 0px rgb(0, 0, 0); */
+}
+
+#box{
+    /* background: white; */
+    color:black;
+    padding: 0.2em 0.2em 0.3em;
+}
+
+#chooseImage {
+    display: none;
+}
+.file-input-trigger {
+    padding: 2px d5px;
+    border-radius: 1em;
+    /* border-radius: 5px; */
+    border: 0.2em solid white;
+    background: linear-gradient(0deg, rgba(167,217,245,1) 0%, rgba(188,229,252,1) 49%, rgba(217,240,252,1) 49%, rgba(234,246,253,1) 100%);
+    /* background-color: #cdcdcd; */
+    font-size: 0.8em;
+    outline: none;
+    color: #000;
+    cursor: pointer;
+}
