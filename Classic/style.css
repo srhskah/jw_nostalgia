@@ -13,7 +13,10 @@
 #jw_classic{
     background: #cdcdcd;
     /* border: 2px solid black; */
-    width:25%;
+    /* 预览随视口变化；导出时会强制固定宽度，避免手机 25% 把对话框压扁 */
+    width: 25%;
+    min-width: 300px;
+    max-width: calc(100vw - 16px);
     /* margin-left: 25%; */
     margin-top: 5%;
     /* 外框浮雕：固定 px 分边颜色，导出不依赖 em/outset/shadow */

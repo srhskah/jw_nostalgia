@@ -475,7 +475,35 @@
                 return Promise.all(tasks);
             }
 
-            // 仅稳定处理：外框、标题栏、右侧圆形标题钮、底栏 .new_btn（导出前写入 inline）
+            // 与桌面参考导出接近的固定版心（px），避免手机 width:25% 导致比例错乱
+            var EXPORT_LAYOUT_WIDTH = 380;
+
+            function downloadCanvasPng(canvas, filename) {
+                function trigger(href) {
+                    var link = document.createElement('a');
+                    link.href = href;
+                    link.download = filename || 'exported-image.png';
+                    link.rel = 'noopener';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+                if (canvas.toBlob) {
+                    canvas.toBlob(function(blob) {
+                        if (!blob) {
+                            trigger(canvas.toDataURL('image/png'));
+                            return;
+                        }
+                        var url = URL.createObjectURL(blob);
+                        trigger(url);
+                        setTimeout(function() { URL.revokeObjectURL(url); }, 4000);
+                    }, 'image/png');
+                } else {
+                    trigger(canvas.toDataURL('image/png'));
+                }
+            }
+
+            // 仅稳定处理：版心宽度、外框、标题栏、圆形标题钮、底栏 .new_btn
             function applyExportChrome(root) {
                 var backups = [];
                 function backup(el) {
@@ -484,13 +512,19 @@
                 }
 
                 backup(root);
+                // 移出视口并锁宽，避免窄屏裁切 / transform 干扰 html2canvas
+                root.style.position = 'fixed';
+                root.style.left = '-10000px';
+                root.style.top = '0';
+                root.style.transform = 'none';
                 root.style.margin = '0';
+                root.style.width = EXPORT_LAYOUT_WIDTH + 'px';
+                root.style.minWidth = EXPORT_LAYOUT_WIDTH + 'px';
+                root.style.maxWidth = EXPORT_LAYOUT_WIDTH + 'px';
                 root.style.backgroundClip = 'border-box';
                 root.style.overflow = 'visible';
-                root.style.position = 'relative';
                 root.style.boxSizing = 'border-box';
                 root.style.borderRadius = '8px';
-                // 保留运行时颜色，边框宽度改为固定 px
                 var borderColor = root.style.borderColor || window.getComputedStyle(root).borderColor;
                 root.style.borderStyle = 'solid';
                 root.style.borderWidth = '3px';
@@ -532,6 +566,22 @@
                     cap.style.color = '#ffffff';
                 }
 
+                var imgs = root.querySelector('#imgs');
+                backup(imgs);
+                if (imgs) {
+                    imgs.style.maxWidth = '100%';
+                    imgs.style.boxSizing = 'border-box';
+                    imgs.style.overflow = 'hidden';
+                }
+                var avatar = root.querySelector('#img-avatar');
+                backup(avatar);
+                if (avatar) {
+                    avatar.style.maxWidth = '100%';
+                    avatar.style.width = '100%';
+                    avatar.style.height = 'auto';
+                    avatar.style.display = 'block';
+                }
+
                 var newBtns = root.querySelectorAll('.new_btn');
                 for (var n = 0; n < newBtns.length; n++) {
                     var nb = newBtns[n];
@@ -571,15 +621,15 @@
                         useCORS: true,
                         allowTaint: false,
                         backgroundColor: null,
-                        scale: 6
+                        scale: 6,
+                        scrollX: 0,
+                        scrollY: 0,
+                        windowWidth: EXPORT_LAYOUT_WIDTH,
+                        windowHeight: Math.max(element.scrollHeight, element.offsetHeight)
                     });
                 }).then(function(canvas) {
                     if (restoreChrome) restoreChrome();
-                    var imgData = canvas.toDataURL('image/png');
-                    var link = document.createElement('a');
-                    link.href = imgData;
-                    link.download = 'exported-image.png';
-                    link.click();
+                    downloadCanvasPng(canvas, 'exported-image.png');
                 }).catch(function(err) {
                     if (restoreChrome) restoreChrome();
                     console.error(err);

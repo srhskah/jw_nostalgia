@@ -378,56 +378,132 @@
                 return Promise.all(tasks);
             }
 
-            // 仅稳定处理：外框、标题栏、右侧固定关闭钮（导出前写入 inline）
-            function applyExportEmboss(root) {
-                var titleEl = root.querySelector('#title');
-                var closeBtn = root.querySelector('.btn div');
-                var targets = [root];
-                if (titleEl) targets.push(titleEl);
-                if (closeBtn) targets.push(closeBtn);
-                var backups = [];
-                for (var i = 0; i < targets.length; i++) {
-                    var el = targets[i];
-                    backups.push({
-                        el: el,
-                        cssText: el.style.cssText
-                    });
-                    if (el === root) {
-                        el.style.boxSizing = 'border-box';
-                        el.style.borderStyle = 'solid';
-                        el.style.borderWidth = '2px';
-                        el.style.borderTopColor = '#ffffff';
-                        el.style.borderLeftColor = '#ffffff';
-                        el.style.borderRightColor = '#000000';
-                        el.style.borderBottomColor = '#000000';
-                        el.style.boxShadow = 'none';
-                    } else if (el === titleEl) {
-                        el.style.boxSizing = 'border-box';
-                        el.style.height = '22px';
-                        el.style.lineHeight = '16px';
-                        el.style.fontSize = '12px';
-                        el.style.padding = '3px 3px 3px 4px';
-                        el.style.overflow = 'hidden';
-                        el.style.color = '#ffffff';
-                    } else if (el === closeBtn) {
-                        el.style.boxSizing = 'border-box';
-                        el.style.borderStyle = 'solid';
-                        el.style.borderWidth = '2px';
-                        el.style.borderTopColor = '#ffffff';
-                        el.style.borderLeftColor = '#ffffff';
-                        el.style.borderRightColor = '#000000';
-                        el.style.borderBottomColor = '#000000';
-                        el.style.boxShadow = 'none';
-                        el.style.width = '16px';
-                        el.style.height = '14px';
-                        el.style.backgroundColor = '#c0c0c0';
-                        el.style.lineHeight = '10px';
-                        el.style.fontSize = '12px';
-                        el.style.fontFamily = 'Arial, Helvetica, sans-serif';
-                        el.style.textAlign = 'center';
-                        el.style.color = '#000000';
-                    }
+            // 与桌面参考导出接近的固定版心（px），避免手机 width:25% 导致比例错乱
+            var EXPORT_LAYOUT_WIDTH = 380;
+
+            function downloadCanvasPng(canvas, filename) {
+                function trigger(href) {
+                    var link = document.createElement('a');
+                    link.href = href;
+                    link.download = filename || 'exported-image.png';
+                    link.rel = 'noopener';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                 }
+                if (canvas.toBlob) {
+                    canvas.toBlob(function(blob) {
+                        if (!blob) {
+                            trigger(canvas.toDataURL('image/png'));
+                            return;
+                        }
+                        var url = URL.createObjectURL(blob);
+                        trigger(url);
+                        setTimeout(function() { URL.revokeObjectURL(url); }, 4000);
+                    }, 'image/png');
+                } else {
+                    trigger(canvas.toDataURL('image/png'));
+                }
+            }
+
+            // 仅稳定处理：版心宽度、外框、标题栏、关闭钮、底栏按钮（导出前写入 inline）
+            function applyExportEmboss(root) {
+                var backups = [];
+                function backup(el) {
+                    if (!el) return;
+                    backups.push({ el: el, cssText: el.style.cssText });
+                }
+
+                backup(root);
+                root.style.position = 'fixed';
+                root.style.left = '-10000px';
+                root.style.top = '0';
+                root.style.transform = 'none';
+                root.style.margin = '0';
+                root.style.width = EXPORT_LAYOUT_WIDTH + 'px';
+                root.style.minWidth = EXPORT_LAYOUT_WIDTH + 'px';
+                root.style.maxWidth = EXPORT_LAYOUT_WIDTH + 'px';
+                root.style.boxSizing = 'border-box';
+                root.style.borderStyle = 'solid';
+                root.style.borderWidth = '2px';
+                root.style.borderTopColor = '#ffffff';
+                root.style.borderLeftColor = '#ffffff';
+                root.style.borderRightColor = '#000000';
+                root.style.borderBottomColor = '#000000';
+                root.style.boxShadow = 'none';
+                root.style.overflow = 'visible';
+
+                var titleEl = root.querySelector('#title');
+                backup(titleEl);
+                if (titleEl) {
+                    titleEl.style.boxSizing = 'border-box';
+                    titleEl.style.height = '22px';
+                    titleEl.style.lineHeight = '16px';
+                    titleEl.style.fontSize = '12px';
+                    titleEl.style.padding = '3px 3px 3px 4px';
+                    titleEl.style.overflow = 'hidden';
+                    titleEl.style.color = '#ffffff';
+                }
+
+                var closeBtn = root.querySelector('.btn div');
+                backup(closeBtn);
+                if (closeBtn) {
+                    closeBtn.style.boxSizing = 'border-box';
+                    closeBtn.style.borderStyle = 'solid';
+                    closeBtn.style.borderWidth = '2px';
+                    closeBtn.style.borderTopColor = '#ffffff';
+                    closeBtn.style.borderLeftColor = '#ffffff';
+                    closeBtn.style.borderRightColor = '#000000';
+                    closeBtn.style.borderBottomColor = '#000000';
+                    closeBtn.style.boxShadow = 'none';
+                    closeBtn.style.width = '16px';
+                    closeBtn.style.height = '14px';
+                    closeBtn.style.backgroundColor = '#c0c0c0';
+                    closeBtn.style.lineHeight = '10px';
+                    closeBtn.style.fontSize = '12px';
+                    closeBtn.style.fontFamily = 'Arial, Helvetica, sans-serif';
+                    closeBtn.style.textAlign = 'center';
+                    closeBtn.style.color = '#000000';
+                }
+
+                var imgs = root.querySelector('#preview-host') || root.querySelector('#imgs');
+                backup(imgs);
+                if (imgs) {
+                    imgs.style.maxWidth = '100%';
+                    imgs.style.boxSizing = 'border-box';
+                    imgs.style.overflow = 'hidden';
+                }
+                var avatar = root.querySelector('#img-avatar');
+                backup(avatar);
+                if (avatar) {
+                    avatar.style.maxWidth = '100%';
+                    avatar.style.width = '100%';
+                    avatar.style.height = 'auto';
+                    avatar.style.display = 'block';
+                }
+
+                var boxBtns = root.querySelectorAll('#box button, #box .new_btn');
+                for (var b = 0; b < boxBtns.length; b++) {
+                    var nb = boxBtns[b];
+                    backup(nb);
+                    nb.style.appearance = 'none';
+                    nb.style.webkitAppearance = 'none';
+                    nb.style.boxSizing = 'border-box';
+                    nb.style.padding = '2px 5px';
+                    nb.style.borderStyle = 'solid';
+                    nb.style.borderWidth = '2px';
+                    nb.style.borderTopColor = '#ffffff';
+                    nb.style.borderLeftColor = '#ffffff';
+                    nb.style.borderRightColor = '#808080';
+                    nb.style.borderBottomColor = '#808080';
+                    nb.style.boxShadow = 'inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #404040';
+                    nb.style.backgroundColor = '#cdcdcd';
+                    nb.style.fontFamily = 'Unifont, DotGothic16, monospace';
+                    nb.style.fontSize = '13px';
+                    nb.style.lineHeight = '16px';
+                    nb.style.color = '#000000';
+                }
+
                 return function restoreExportEmboss() {
                     for (var j = 0; j < backups.length; j++) {
                         backups[j].el.style.cssText = backups[j].cssText;
@@ -436,26 +512,28 @@
             }
 
             document.getElementById('exportButton').addEventListener('click', function() {
-                var element = document.getElementById('jw_classic'); // 获取你想要导出的 <div> 的 ID
+                var element = document.getElementById('jw_classic');
                 var restoreEmboss = null;
-                ensureExportImagesClean(element).then(function() {
+                var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+
+                fontsReady.then(function() {
+                    return ensureExportImagesClean(element);
+                }).then(function() {
                     restoreEmboss = applyExportEmboss(element);
                     element.offsetHeight; // 强制重绘后再截图
                     return html2canvas(element, {
-                        useCORS: true, // 允许跨域请求，如果div中有来自不同域名的资源
+                        useCORS: true,
                         allowTaint: false,
-                        backgroundColor: null, // 设置背景颜色为null以保持透明度
-                        scale: 2, // 可选：提高输出图像的质量
-                        dpi: window.devicePixelRatio // 根据设备像素比调整分辨率
+                        backgroundColor: null,
+                        scale: 2,
+                        scrollX: 0,
+                        scrollY: 0,
+                        windowWidth: EXPORT_LAYOUT_WIDTH,
+                        windowHeight: Math.max(element.scrollHeight, element.offsetHeight)
                     });
                 }).then(function(canvas) {
                     if (restoreEmboss) restoreEmboss();
-                    // 将 canvas 转换为图片，并创建一个下载链接
-                    var imgData = canvas.toDataURL('image/png');
-                    var link = document.createElement('a');
-                    link.href = imgData;
-                    link.download = 'exported-image.png'; // 设置文件名
-                    link.click();
+                    downloadCanvasPng(canvas, 'exported-image.png');
                 }).catch(function(err) {
                     if (restoreEmboss) restoreEmboss();
                     console.error(err);

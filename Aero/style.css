@@ -20,8 +20,10 @@
     /* background-clip: padding-box; */
     /* background: rgba(255,255,255,0.25); */
     /* border: 2px solid black; */
-    min-width: 20em;
-    width:25%;
+    /* 预览随视口变化；导出时会强制固定宽度，避免手机 25% 把对话框压扁 */
+    width: 25%;
+    min-width: 300px;
+    max-width: calc(100vw - 16px);
     /* margin-left: 25%; */
     margin-top: 5%;
     /* 固定 px 边框/圆角，避免 em+字体回退导致本地/远端导出窗框不一致 */
