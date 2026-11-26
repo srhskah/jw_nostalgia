@@ -13,6 +13,7 @@
     <script>window.jQuery || document.write('<script src="/path/to/local/jquery.min.js"><\/script>')</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script src="../vhs/heisei-vhs.js"></script>
     <style>
         body{
             margin: 0 auto;
@@ -34,7 +35,7 @@
                 <div>×</div>
             </div>
         </div>
-        <div style="text-align: center;padding: 2.5%;">
+        <div id="preview-host" style="text-align: center;padding: 2.5%;position: relative;">
             <img id="img-avatar" style="max-width: 100%;">
         </div>
         <div id="box" style="text-align: center;">
@@ -186,6 +187,18 @@
                 target.style.opacity = opacity;
                 slider.value = opacity;
             });
+        </script>
+        <br>
+        <div id="vhs-panel-host"></div>
+        <script>
+            if (window.HeiseiVHS) {
+                window.HeiseiVHS.mount({
+                    imgEl: document.getElementById('img-avatar'),
+                    previewHost: document.getElementById('preview-host'),
+                    panelHost: document.getElementById('vhs-panel-host'),
+                    theme: 'classic'
+                });
+            }
         </script>
         <br>
         <div id="ctrls_2">

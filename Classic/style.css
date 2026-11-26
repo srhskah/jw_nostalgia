@@ -107,3 +107,71 @@ button,
     left: 50%;
     transform: translateX(-50%); /* 向左回退自身宽度的50%*/
 }
+
+/* HEISEI-VHS：跟随 Classic 控件风格，默认折叠 */
+.vhs-panel {
+    margin: 0.5em auto;
+    max-width: 28em;
+    text-align: left;
+    font-size: 0.8em;
+}
+.vhs-enable-row {
+    text-align: center;
+    margin-bottom: 0.4em;
+}
+.vhs-panel-body {
+    display: none;
+    border-style: solid;
+    border-width: 2px;
+    border-top-color: #ffffff;
+    border-left-color: #ffffff;
+    border-right-color: #808080;
+    border-bottom-color: #808080;
+    background: #cdcdcd;
+    padding: 0.5em 0.6em;
+    max-height: 22em;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+.vhs-panel-on .vhs-panel-body {
+    display: block;
+}
+.vhs-hint {
+    font-size: 0.85em;
+    margin-bottom: 0.4em;
+    color: #333;
+}
+.vhs-ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    margin: 0.25em 0;
+}
+.vhs-ctrl-name {
+    flex: 0 0 7.5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.vhs-ctrl-row input[type="range"] {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.vhs-ctrl-row input[type="number"] {
+    width: 4em;
+    box-sizing: border-box;
+}
+.vhs-tools {
+    margin-top: 0.5em;
+    text-align: center;
+}
+.vhs-tools button {
+    margin: 0.15em;
+}
+.vhs-tools label {
+    display: inline-block;
+    margin-right: 0.6em;
+}
+.vhs-canvas {
+    max-width: 100%;
+}

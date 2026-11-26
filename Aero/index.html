@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvasize@1.0.0/dist/canvasize.min.js"></script>
+    <script src="../vhs/heisei-vhs.js"></script>
     <style>
         body{
             margin: 0 auto;
@@ -41,7 +42,7 @@
                 </div>
             </div>
             <!-- <div id="top-toolbar" class="clearfix"></div> -->
-            <div id="imgs" style="margin-bottom: 0.3em;">
+            <div id="imgs" style="margin-bottom: 0.3em;position: relative;">
                 <!-- <img id="img-avatar" style="max-width: 100%;max-height: 30em;"> -->
                 <img id="img-avatar" style="max-width: 100%;">
             </div>
@@ -229,6 +230,18 @@
                 <input type="number" id="input_num" min="0" max="1" step="0.01" value="1">
             </label>
         </div>
+        <br>
+        <div id="vhs-panel-host"></div>
+        <script>
+            if (window.HeiseiVHS) {
+                window.HeiseiVHS.mount({
+                    imgEl: document.getElementById('img-avatar'),
+                    previewHost: document.getElementById('imgs'),
+                    panelHost: document.getElementById('vhs-panel-host'),
+                    theme: 'aero'
+                });
+            }
+        </script>
         <br>
         <div id="ctrls_2">
             窗口颜色<!-- 透明度&nbsp;&nbsp;&nbsp;&nbsp; -->
