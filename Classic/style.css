@@ -16,16 +16,17 @@
     width:25%;
     /* margin-left: 25%; */
     margin-top: 5%;
-    /* solid 多色边框模拟 outset 浮雕，避免 html2canvas 丢失 3D 边框 */
-    border: 0.15em solid;
-    border-color: #ffffff #808080 #808080 #ffffff;
+    /* px + 分边颜色 + inset shadow：远端 html2canvas 对 em/outset 不稳定 */
+    border-style: solid;
+    border-width: 2px;
+    border-top-color: #ffffff;
+    border-left-color: #ffffff;
+    border-right-color: #808080;
+    border-bottom-color: #808080;
+    box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #404040;
     position: relative;
     left: 50%;
     transform: translateX(-50%); /* 向左回退自身宽度的50% */
-    /* Simulate an outset effect using shadows */
-    /* box-shadow: 
-        0 0.15em 0.15em rgba(0,0,0,0.3),
-        0 -0.15em 0.15em rgba(255,255,255,0.9); */
 }
 
 #jw_classic>div{
@@ -58,10 +59,13 @@
     font-size:larger;
     line-height: 1em;
     color: black;
-    /* solid 多色边框模拟 outset，导出时保留浮雕 */
-    border: 0.1em solid;
-    border-color: #ffffff #808080 #808080 #ffffff;
-    /* box-shadow: 0.1em 0.1em 0.1em 0px rgb(0, 0, 0); */
+    border-style: solid;
+    border-width: 2px;
+    border-top-color: #ffffff;
+    border-left-color: #ffffff;
+    border-right-color: #808080;
+    border-bottom-color: #808080;
+    box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #404040;
 }
 
 #box{
@@ -74,13 +78,20 @@
     display: none;
 }
 
-button {
+button,
+.file-input-trigger {
+    /* 去掉系统原生按钮外观，否则远端 html2canvas 常丢掉自定义浮雕边框 */
+    appearance: none;
+    -webkit-appearance: none;
     font-family: Unifont, DotGothic16;
     padding: 2px 5px;
-    /* border-radius: 5px; */
-    /* solid 多色边框模拟 outset，动态按钮导出时也能保留浮雕 */
-    border: 0.2em solid;
-    border-color: #ffffff #808080 #808080 #ffffff;
+    border-style: solid;
+    border-width: 2px;
+    border-top-color: #ffffff;
+    border-left-color: #ffffff;
+    border-right-color: #808080;
+    border-bottom-color: #808080;
+    box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #404040;
     background-color: #cdcdcd;
     outline: none;
     color: #000;
@@ -91,16 +102,4 @@ button {
     position: relative;
     left: 50%;
     transform: translateX(-50%); /* 向左回退自身宽度的50%*/
-}
-
-.file-input-trigger {
-    padding: 2px 5px;
-    /* border-radius: 5px; */
-    /* solid 多色边框模拟 outset，导出时保留浮雕 */
-    border: 0.2em solid;
-    border-color: #ffffff #808080 #808080 #ffffff;
-    background-color: #cdcdcd;
-    outline: none;
-    color: #000;
-    cursor: pointer;
 }

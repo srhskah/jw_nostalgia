@@ -365,9 +365,65 @@
                 return Promise.all(tasks);
             }
 
+            // 导出前把浮雕写进 inline style，避免远端 html2canvas 丢掉 stylesheet / 原生 button 边框
+            function applyExportEmboss(root) {
+                var targets = [root].concat(
+                    Array.prototype.slice.call(root.querySelectorAll('button, .btn div, .file-input-trigger'))
+                );
+                var backups = [];
+                for (var i = 0; i < targets.length; i++) {
+                    var el = targets[i];
+                    backups.push({
+                        el: el,
+                        border: el.style.border,
+                        borderStyle: el.style.borderStyle,
+                        borderWidth: el.style.borderWidth,
+                        borderTopColor: el.style.borderTopColor,
+                        borderRightColor: el.style.borderRightColor,
+                        borderBottomColor: el.style.borderBottomColor,
+                        borderLeftColor: el.style.borderLeftColor,
+                        boxShadow: el.style.boxShadow,
+                        appearance: el.style.appearance,
+                        webkitAppearance: el.style.webkitAppearance,
+                        backgroundColor: el.style.backgroundColor
+                    });
+                    el.style.appearance = 'none';
+                    el.style.webkitAppearance = 'none';
+                    el.style.borderStyle = 'solid';
+                    el.style.borderWidth = (el === root) ? '2px' : '2px';
+                    el.style.borderTopColor = '#ffffff';
+                    el.style.borderLeftColor = '#ffffff';
+                    el.style.borderRightColor = '#808080';
+                    el.style.borderBottomColor = '#808080';
+                    el.style.boxShadow = 'inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #404040';
+                    if (!el.style.backgroundColor) {
+                        el.style.backgroundColor = '#cdcdcd';
+                    }
+                }
+                return function restoreExportEmboss() {
+                    for (var j = 0; j < backups.length; j++) {
+                        var b = backups[j];
+                        b.el.style.border = b.border;
+                        b.el.style.borderStyle = b.borderStyle;
+                        b.el.style.borderWidth = b.borderWidth;
+                        b.el.style.borderTopColor = b.borderTopColor;
+                        b.el.style.borderRightColor = b.borderRightColor;
+                        b.el.style.borderBottomColor = b.borderBottomColor;
+                        b.el.style.borderLeftColor = b.borderLeftColor;
+                        b.el.style.boxShadow = b.boxShadow;
+                        b.el.style.appearance = b.appearance;
+                        b.el.style.webkitAppearance = b.webkitAppearance;
+                        b.el.style.backgroundColor = b.backgroundColor;
+                    }
+                };
+            }
+
             document.getElementById('exportButton').addEventListener('click', function() {
                 var element = document.getElementById('jw_classic'); // 获取你想要导出的 <div> 的 ID
+                var restoreEmboss = null;
                 ensureExportImagesClean(element).then(function() {
+                    restoreEmboss = applyExportEmboss(element);
+                    element.offsetHeight; // 强制重绘后再截图
                     return html2canvas(element, {
                         useCORS: true, // 允许跨域请求，如果div中有来自不同域名的资源
                         allowTaint: false,
@@ -376,6 +432,7 @@
                         dpi: window.devicePixelRatio // 根据设备像素比调整分辨率
                     });
                 }).then(function(canvas) {
+                    if (restoreEmboss) restoreEmboss();
                     // 将 canvas 转换为图片，并创建一个下载链接
                     var imgData = canvas.toDataURL('image/png');
                     var link = document.createElement('a');
@@ -383,6 +440,7 @@
                     link.download = 'exported-image.png'; // 设置文件名
                     link.click();
                 }).catch(function(err) {
+                    if (restoreEmboss) restoreEmboss();
                     console.error(err);
                     alert('导出失败：画布被跨域图片污染。请确认标题图标/内容图可同源访问，或重新选择图片后再试。');
                 });
