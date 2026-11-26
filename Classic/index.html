@@ -8,21 +8,26 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="../classic_img_v.png" type="image/x-icon">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>window.jQuery || document.write('<script src="/path/to/local/jquery.min.js"><\/script>')</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
     <style>
         body{
             margin: 0 auto;
             font-family: Unifont, DotGothic16;
-            background: #cccccc;
+            background: #00cccc;
         }
     </style>
 </head>
 <body>
     <div id="jw_classic" class="satu">
-        <div id="title">
-            <p id="title_text" style="float: left;margin-block-start: 0;">🖼️Image Viewer</p>
+        <div id="title" style="background-color: rgb(0, 0, 192);">
+            <div>
+                <img src="data:image/png;base64,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6u0hZw889Cf/+r1DTj/7XbfO/uHvfmvI2SMP/S//8+H29jdPD3nPPve3vzXy0Z29AoHPPH+qfeXfnRrypD/8xBu//e57tx8fcfgvff17f7C19sCAs69evvbCsz3nbnouunvNpXMXT1pr53uvD1534/nPDEEMPsIHa9Sn/9KY3/vomVvXf/B73nh6zOnjTn359Uevv3Hz9JDnfv4z457byesQ+Hv/cPvzX/rq5lMjnvbpJ1/74ul77oz451Z76ZXHb7bWztQ/9+bk8rUrXf9hXQDUb2f6EwVA7YoEQK2302oFBECtd2sCoFr8qM4TALXrFAC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7yM4TALULFQC13k6rFRAAtd4CoNr7AOf9zb+7/aX/+OubHznA6O848uknX3v19D13nvyOFx7RBdtt+8XNpn1ixCNtW/vKprWPjTj7pVceH3FsO/tgu/65n21PDzl8pYeOCvsP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" alt="" style="float: left;height: 1.2em;margin: 0.2em 0.2em 0;" ><!-- data URI，避免导出时 canvas 污染 -->
+                <p id="title_text" style="float: left;margin-block-start: 0;">Image Viewer</p>    
+            </div>
             <div class="btn">
                 <!-- <div></div>
                 <div></div> -->
@@ -30,15 +35,40 @@
             </div>
         </div>
         <div style="text-align: center;padding: 2.5%;">
-            <img id="img-avatar" style="max-width: 100%;max-height: 30em;">
+            <img id="img-avatar" style="max-width: 100%;">
         </div>
+        <div id="box" style="text-align: center;">
+            <!-- <input id="chooseImage" type="file" name="file" accept="image/*">
+            <button class="file-input-trigger" style="font-family: Unifont, DotGothic16;">選択圖片</button> -->
+        </div>
+
+        <!-- <script>
+            $("#chooseImage").on('change', function(){
+                let file = this.files[0];
+                if (file) {
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#img-avatar').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            $('.file-input-trigger').on('click', function() {
+                $('#chooseImage').trigger('click');
+            });
+        </script> -->
+    </div>
+    
+    <div class="dua" style="text-align: center;">
+        <br>
         <div id="box" style="text-align: center;">
             <!-- Sarahah! -->
             <input id="chooseImage" type="file" name="file" accept="image/*">
             <button class="file-input-trigger" style="font-family: Unifont, DotGothic16;">選択圖片</button>
+            &NonBreakingSpace;
+            <button id="addButton">增加按钮</button>
             <!-- <input type="button" value=""> -->
         </div>
-
         <script>
             $("#chooseImage").on('change', function(){
                 let file = this.files[0];
@@ -54,10 +84,69 @@
                 $('#chooseImage').trigger('click');
             });
         </script>
-    </div>
-    <div class="dua">
+
         <br>
-        窗口标题&NonBreakingSpace;&NonBreakingSpace;
+        
+        <table id="buttonTable" border="1" style="background: #cccccc;width: 20em;text-align: center; font-size: 0.8em;">
+            <thead style="height: 1.2em;">
+                <tr>
+                    <th>按钮名称</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 动态添加的按钮行将放在这里 -->
+            </tbody>
+        </table>
+        <script>
+            document.getElementById('addButton').addEventListener('click', function() {
+                // 创建一个新的表格行
+                var newRow = document.createElement('tr');
+
+                // 创建按钮名称单元格
+                var nameCell = document.createElement('td');
+                var nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.value = '新按钮';
+                nameCell.appendChild(nameInput);
+
+                // 创建操作单元格
+                var actionCell = document.createElement('td');
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = '删除';
+                deleteButton.addEventListener('click', function() {
+                    newRow.remove();
+                    newButton.remove();
+                });
+                actionCell.appendChild(deleteButton);
+
+                // 将单元格添加到行中
+                newRow.appendChild(nameCell);
+                newRow.appendChild(actionCell);
+
+                // 将行添加到表格中
+                document.getElementById('buttonTable').getElementsByTagName('tbody')[0].appendChild(newRow);
+                
+                // 创建新的按钮并添加到box中
+                var newButton = document.createElement('button');
+                newButton.textContent = nameInput.value;
+                newButton.setAttribute('data-name', nameInput.value);
+                newButton.style.margin = '5px';
+                document.getElementById('box').appendChild(newButton);
+
+                // 监听输入框的变化来更新按钮的文本
+                nameInput.addEventListener('input', function() {
+                    newButton.textContent = nameInput.value;
+                    newButton.setAttribute('data-name', nameInput.value);
+                });
+            });
+        </script>
+
+        <br>
+        <div id="buttonContainer" style="text-align: center;"></div>
+        
+        <br>
+        窗口标题&nbsp;&nbsp;
         <input type="text" id="textInput" oninput="updateP(this.value)">
         <br>
         <span style="font-size:0.625em">⚠️ 输入文本后，窗口标题将自动更改为文本框内容</span>
@@ -70,7 +159,7 @@
         </script>
         <br><br>
         <div id="ctrls">
-            图片透明度&NonBreakingSpace;&NonBreakingSpace;
+            图片透明度&nbsp;&nbsp;
             <label>
                 <input type="range" id="slider" min="0" max="1" step="0.01" value="1">
             </label>
@@ -100,7 +189,7 @@
         </script>
         <br>
         <div id="ctrls_2">
-            颜色
+            标题栏颜色
             <br>
             R
             <label>
@@ -128,6 +217,7 @@
                 <input type="number" id="input_b" min="0" max="255" step="1" value="192">
             </label>
             <br>
+            <span style="font-size:0.625em">R: 红色 (Red) G: 绿色(Green) B: 蓝色 (Blue)</span>
             <!-- &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
         </div>
         <script>
@@ -138,6 +228,58 @@
             const redValue = document.getElementById('input_r');
             const greenValue = document.getElementById('input_g');
             const blueValue = document.getElementById('input_b');
+            var imgAvatar = document.getElementById('img-avatar');
+
+            imgAvatar.onload = function() {
+                // 创建隐藏的Canvas并绘制图片
+                const canvas = document.createElement('canvas');
+                canvas.width = imgAvatar.naturalWidth;
+                canvas.height = imgAvatar.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(imgAvatar, 0, 0);
+
+                // 点击事件处理
+                imgAvatar.addEventListener('click', function(event) {
+                    // 计算点击位置相对于图片的实际坐标
+                    const rect = imgAvatar.getBoundingClientRect();
+                    const scaleX = imgAvatar.naturalWidth / imgAvatar.clientWidth;
+                    const scaleY = imgAvatar.naturalHeight / imgAvatar.clientHeight;
+                    
+                    const x = (event.clientX - rect.left) * scaleX;
+                    const y = (event.clientY - rect.top) * scaleY;
+
+                    // 确保坐标在图片范围内
+                    if (x < 0 || x >= imgAvatar.naturalWidth || y < 0 || y >= imgAvatar.naturalHeight) return;
+
+                    // 获取像素数据
+                    const pixel = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
+                    
+                    var red = pixel[0];
+                    var green = pixel[1];
+                    var blue = pixel[2];
+
+                    // // 显示结果
+                    // const rgb = `RGB(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+                    
+                    trg.style.backgroundColor = `rgb(${red}, ${green}, ${blue})`;
+
+                    // 更新显示的值
+                    redValue.value = red;
+                    greenValue.value = green;
+                    blueValue.value = blue;
+                    // document.getElementById('result').textContent = rgb;
+                    
+                    // 更新显示的值
+                    redSlider.value = red;
+                    greenSlider.value = green;
+                    blueSlider.value = blue;
+                });
+            };
+
+            // 处理图片加载错误
+            imgAvatar.onerror = function() {
+                console.error('图片加载失败，请检查URL是否正确或CORS设置');
+            };
 
             // 更新背景颜色
             function updateBackgroundColor() {
@@ -187,20 +329,100 @@
         <br>
         <button id="exportButton">导出对话框为图片</button>
         <script>
+            function imgSrcToDataURL(img) {
+                var src = img.getAttribute('src') || '';
+                if (!src || src.indexOf('data:') === 0) {
+                    return Promise.resolve();
+                }
+                return fetch(src).then(function(res) {
+                    if (!res.ok) throw new Error('fetch image failed: ' + res.status);
+                    return res.blob();
+                }).then(function(blob) {
+                    return new Promise(function(resolve, reject) {
+                        var reader = new FileReader();
+                        reader.onload = function() { resolve(reader.result); };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+                }).then(function(dataUrl) {
+                    return new Promise(function(resolve, reject) {
+                        img.onload = function() { resolve(); };
+                        img.onerror = reject;
+                        img.removeAttribute('crossorigin');
+                        img.src = dataUrl;
+                    });
+                }).catch(function(err) {
+                    console.warn('导出前转换图片失败:', src, err);
+                });
+            }
+
+            function ensureExportImagesClean(root) {
+                var imgs = root.querySelectorAll('img');
+                var tasks = [];
+                for (var i = 0; i < imgs.length; i++) {
+                    tasks.push(imgSrcToDataURL(imgs[i]));
+                }
+                return Promise.all(tasks);
+            }
+
             document.getElementById('exportButton').addEventListener('click', function() {
                 var element = document.getElementById('jw_classic'); // 获取你想要导出的 <div> 的 ID
-                html2canvas(element,{scale:3}).then(function(canvas) {
+                ensureExportImagesClean(element).then(function() {
+                    return html2canvas(element, {
+                        useCORS: true, // 允许跨域请求，如果div中有来自不同域名的资源
+                        allowTaint: false,
+                        backgroundColor: null, // 设置背景颜色为null以保持透明度
+                        scale: 2, // 可选：提高输出图像的质量
+                        dpi: window.devicePixelRatio // 根据设备像素比调整分辨率
+                    });
+                }).then(function(canvas) {
                     // 将 canvas 转换为图片，并创建一个下载链接
                     var imgData = canvas.toDataURL('image/png');
                     var link = document.createElement('a');
                     link.href = imgData;
                     link.download = 'exported-image.png'; // 设置文件名
                     link.click();
+                }).catch(function(err) {
+                    console.error(err);
+                    alert('导出失败：画布被跨域图片污染。请确认标题图标/内容图可同源访问，或重新选择图片后再试。');
                 });
             });
+            // document.getElementById('exportButton').addEventListener('click', function(){
+            //     const node = document.getElementById('jw_classic');
+            //     domtoimage.toPng(element, {
+            //             // 设置跨域属性
+            //             imagePlaceholder: placeholder,
+            //             cacheBust: true, // 防止缓存问题
+            //             filter: function (node) {
+            //                 if (node.tagName === 'IMG') {
+            //                     node.crossOrigin = 'anonymous'; // 设置图片的跨域属性
+            //                 }
+            //                 return true;
+            //             }
+            //         })
+            //         .then(function(dataUrl){
+            //                 const img = new Image();
+            //                 img.src = dataUrl;
+            //                 document.body.appendChild(img);
+            //             })
+            //         .catch(function(error){
+            //                 console.error('导出失败:', error);
+            //             })
+            // });
+            // document.getElementById('exportButton').addEventListener('click', function() {
+            //     var element = document.getElementById('jw_classic'); // 获取你想要导出的 <div> 的 ID
+            //     html2canvas(element,{scale:3}).then(function(canvas) {
+            //         // 将 canvas 转换为图片，并创建一个下载链接
+            //         var imgData = canvas.toDataURL('image/png');
+            //         var link = document.createElement('a');
+            //         link.href = imgData;
+            //         link.download = 'exported-image.png'; // 设置文件名
+            //         link.click();
+            //     });
+            // });
         </script>
         <br><br>
         <a href="../Aero/index.html">JW Aero (Win7-like)</a>
     </div>
-</body>
-</html>
+
+</body></html>

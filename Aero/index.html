@@ -8,46 +8,49 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>🖼️</text></svg>"></link>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>window.jQuery || document.write('<script src="/path/to/local/jquery.min.js"><\/script>')</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvasize@1.0.0/dist/canvasize.min.js"></script>
     <style>
         body{
             margin: 0 auto;
             /* font-family: Frutiger-Normal, "HarmonyOS Sans SC"; */
             font-family: Segoe UI, 'HarmonyOS Sans SC';
-            background: rgba(205,205,205,0.5);
+            background: rgba(237,237,237,0.5);
         }
     </style>
 </head>
 <body>
     <div class="satu">
         <div id="jw_aero">
-            <div id="title">
-                <p id="title_text" style="float: left;margin-block-start: 0;z-index: 1;">🖼️ Image Viewer</p>
+            <div id="title" style="margin: 0.3em;">
+                <p style="float: left;margin-block-start: 0;z-index: 1;">🖼️&NonBreakingSpace;</p>
+                <p id="title_text" style="float: left;margin-block-start: 0;z-index: 1;">Image Viewer</p>
                 <div class="btn" style="z-index: 2;">
                     <!-- <div></div>
                     <div></div> -->
                     <!-- <div style="background: red;">×</div>&nbsp;
                     <div style="background: rgb(0, 192, 0);">+</div>&nbsp;
                     <div style="background: rgb(0, 128, 255);line-height: 0.8em;">-</div> -->
-                    <div style="background: linear-gradient(0deg, rgba(255,0,0,1) 0%, rgba(255,70,50,1) 49%, rgba(255,140,100,1) 49%, rgba(255,210,150,1) 100%);">×</div>&nbsp;
-                    <div style="background: linear-gradient(0deg, rgba(0,176,0,1) 0%, rgba(50,202,70,1) 49%, rgba(100,228,140,1) 49%, rgba(150,255,210,1) 100%);">+</div>&nbsp;
-                    <div style="background: linear-gradient(0deg, rgba(0,128,255,1) 0%, rgba(50,156,255,1) 49%, rgba(100,184,255,1) 49%, rgba(150,212,255,1) 100%);line-height: 0.8em;">-</div>
+                    <div id="close_btn" style="background: linear-gradient(0deg, rgba(255,140,100,1) 0%, rgba(255,0,0,1) 49%, rgba(255,70,50,1) 51%, rgba(255,210,150,1) 100%);">×</div>&nbsp;
+                    <div id="add_btn" style="background: linear-gradient(0deg, rgba(100,228,140,1) 0%, rgba(0,176,0,1) 49%, rgba(50,202,70,1) 51%, rgba(150,255,210,1) 100%);">+</div>&nbsp;
+                    <div id="reduce_btn" style="background: linear-gradient(0deg, rgba(100,184,255,1) 0%, rgba(0,128,255,1) 49%, rgba(50,156,255,1) 51%, rgba(150,212,255,1) 100%);">-</div>
                 </div>
             </div>
-            <div id="imgs">
+            <!-- <div id="top-toolbar" class="clearfix"></div> -->
+            <div id="imgs" style="margin-bottom: 0.3em;">
                 <!-- <img id="img-avatar" style="max-width: 100%;max-height: 30em;"> -->
                 <img id="img-avatar" style="max-width: 100%;">
             </div>
             <div id="box" style="text-align: center;">
-                <!-- Sarahah! -->
-                <input id="chooseImage" type="file" name="file" accept="image/*">
-                <button class="file-input-trigger" style="font-family: Segoe UI, 'HarmonyOS Sans SC';">选择图片</button>
-                <!-- <input type="button" value=""> -->
+                <!-- <input id="chooseImage" type="file" name="file" accept="image/*">
+                <button class="file-input-trigger" style="font-family: Segoe UI, 'HarmonyOS Sans SC';">选择图片</button> -->
             </div>
     
-            <script>
+            <!-- <script>
                 $("#chooseImage").on('change', function(){
                     let file = this.files[0];
                     if (file) {
@@ -61,12 +64,154 @@
                 $('.file-input-trigger').on('click', function() {
                     $('#chooseImage').trigger('click');
                 });
-            </script>
+            </script> -->
         </div>
     </div>
     
     <div class="dua">
         <br>
+        <div id="box" style="text-align: center;">
+            <input id="chooseImage" type="file" name="file" accept="image/*">
+            <button class="file-input-trigger" style="font-family: Segoe UI, 'HarmonyOS Sans SC';">选择图片</button>
+            <!-- &NonBreakingSpace;
+            <button id="addTop">增加工具栏按钮</button> -->
+            &NonBreakingSpace;
+            <button id="addButton">增加底部按钮</button>
+        </div>
+        <script>
+            $("#chooseImage").on('change', function(){
+                let file = this.files[0];
+                if (file) {
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#img-avatar').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            $('.file-input-trigger').on('click', function() {
+                $('#chooseImage').trigger('click');
+            });
+        </script>
+        
+        <!-- <br> -->
+        <!-- <table id="topButtonTable" style="width: 20em; background: rgba(225,240,255,1); text-align: center; font-size: 0.8em;">
+            <thead style="height: 1.2em;background: linear-gradient(0deg, rgba(245,250,255,1) 0%, rgba(225,240,255,1) 49%, rgba(235,245,255,1) 51%,  rgba(255,255,255,1) 100%);">
+                <tr>
+                    <th>工具栏按钮名称</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table> -->
+        <script>
+            document.getElementById('addTop').addEventListener('click', function() {
+                // 创建一个新的表格行
+                var newRow = document.createElement('tr');
+
+                // 创建按钮名称单元格
+                var nameCell = document.createElement('td');
+                var nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.value = '新按钮';
+                nameCell.appendChild(nameInput);
+
+                // 创建操作单元格
+                var actionCell = document.createElement('td');
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = '删除';
+                deleteButton.addEventListener('click', function() {
+                    newRow.remove();
+                    newButton.remove();
+                });
+                actionCell.appendChild(deleteButton);
+
+                // 将单元格添加到行中
+                newRow.appendChild(nameCell);
+                newRow.appendChild(actionCell);
+
+                // 将行添加到表格中
+                document.getElementById('topButtonTable').getElementsByTagName('tbody')[0].appendChild(newRow);
+                
+                // 创建新的按钮并添加到box中
+                var newButton = document.createElement('span');
+                newButton.textContent = nameInput.value;
+                newButton.setAttribute('data-name', nameInput.value);
+                newButton.style.margin = '5px';
+                newButton.style.display = 'inline-block';
+                document.getElementById('top-toolbar').appendChild(newButton);
+
+                // 监听输入框的变化来更新按钮的文本
+                nameInput.addEventListener('input', function() {
+                    newButton.textContent = nameInput.value;
+                    newButton.setAttribute('data-name', nameInput.value);
+                });
+            });
+        </script>
+
+        <br>
+        <table id="buttonTable" style="width: 20em; background: rgba(225,225,225,1); text-align: center; font-size: 0.8em;">
+            <thead style="height: 1.2em;background: linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(225,225,225,1) 49%, rgba(235,235,235,1) 51%,  rgba(255,255,255,1) 100%);">
+                <tr>
+                    <th>底部按钮名称</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 动态添加的按钮行将放在这里 -->
+            </tbody>
+        </table>
+
+        <script>
+            document.getElementById('addButton').addEventListener('click', function() {
+                // 创建一个新的表格行
+                var newRow = document.createElement('tr');
+
+                // 创建按钮名称单元格
+                var nameCell = document.createElement('td');
+                var nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.value = '新按钮';
+                nameCell.appendChild(nameInput);
+
+                // 创建操作单元格
+                var actionCell = document.createElement('td');
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = '删除';
+                deleteButton.addEventListener('click', function() {
+                    newRow.remove();
+                    newButton.remove();
+                });
+                actionCell.appendChild(deleteButton);
+
+                // 将单元格添加到行中
+                newRow.appendChild(nameCell);
+                newRow.appendChild(actionCell);
+
+                // 将行添加到表格中
+                document.getElementById('buttonTable').getElementsByTagName('tbody')[0].appendChild(newRow);
+                
+                // 创建新的按钮并添加到box中
+                var newButton = document.createElement('button');
+                newButton.className = 'new_btn';
+                newButton.textContent = nameInput.value;
+                newButton.setAttribute('data-name', nameInput.value);
+                newButton.style.margin = '5px';
+                document.getElementById('box').appendChild(newButton);
+
+                // 监听输入框的变化来更新按钮的文本
+                nameInput.addEventListener('input', function() {
+                    newButton.textContent = nameInput.value;
+                    newButton.setAttribute('data-name', nameInput.value);
+                });
+            });
+        </script>
+
+        <br>
+        <div id="buttonContainer" style="text-align: center;"></div>
+        
         窗口标题&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;
         <input type="text" id="textInput" oninput="updateP(this.value)">
         <br>
@@ -86,7 +231,7 @@
         </div>
         <br>
         <div id="ctrls_2">
-            颜色<!-- 透明度&nbsp;&nbsp;&nbsp;&nbsp; -->
+            窗口颜色<!-- 透明度&nbsp;&nbsp;&nbsp;&nbsp; -->
             <!-- &NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace; -->
             <br>
             R
@@ -123,6 +268,10 @@
             <label>
                 <input type="number" id="input_a" min="0" max="1" step="0.01" value="0.5">
             </label>
+            <br>
+            <span style="font-size:0.625em">R：红色（Red）G：绿色（Green）B：蓝色（Blue）</span>
+            <br>
+            <span style="font-size:0.625em">A：透明度（Alpha）</span>
         </div>
         <br>
         <script>
@@ -155,6 +304,65 @@
             const greenValue = document.getElementById('input_g');
             const blueValue = document.getElementById('input_b');
             const alphaValue = document.getElementById('input_a');
+            var imgAvatar = document.getElementById('img-avatar');
+
+            
+            imgAvatar.onload = function() {
+                // 创建隐藏的Canvas并绘制图片
+                const canvas = document.createElement('canvas');
+                canvas.width = imgAvatar.naturalWidth;
+                canvas.height = imgAvatar.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(imgAvatar, 0, 0);
+
+                // 点击事件处理
+                imgAvatar.addEventListener('click', function(event) {
+                    // 计算点击位置相对于图片的实际坐标
+                    const rect = imgAvatar.getBoundingClientRect();
+                    const scaleX = imgAvatar.naturalWidth / imgAvatar.clientWidth;
+                    const scaleY = imgAvatar.naturalHeight / imgAvatar.clientHeight;
+                    
+                    const x = (event.clientX - rect.left) * scaleX;
+                    const y = (event.clientY - rect.top) * scaleY;
+
+                    // 确保坐标在图片范围内
+                    if (x < 0 || x >= imgAvatar.naturalWidth || y < 0 || y >= imgAvatar.naturalHeight) return;
+
+                    // 获取像素数据
+                    const pixel = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
+                    
+                    var red = pixel[0];
+                    var green = pixel[1];
+                    var blue = pixel[2];
+                    var alpha = pixel[3]/255;
+
+                    // // 显示结果
+                    // const rgb = `RGB(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+                    
+                    // trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+
+                    trg.style.background = `linear-gradient(0deg, rgba(${Math.max(red-32,0)}, ${Math.max(green-32,0)}, ${Math.max(blue-32,0)}, ${alpha}) 0%, rgba(${Math.max(red-96,0)}, ${Math.max(green-96,0)}, ${Math.max(blue-96,0)}, ${alpha}) 49%, rgba(${Math.max(red-64,0)}, ${Math.max(green-64,0)}, ${Math.max(blue-64,0)}, ${alpha}) 51%, rgba(${red}, ${green}, ${blue}, ${alpha}) 100%) padding-box`;
+                    trg.style.border = `0.2em solid rgba(${red}, ${green}, ${blue}, ${0.5})`;
+
+                    // 更新显示的值
+                    redValue.value = red;
+                    greenValue.value = green;
+                    blueValue.value = blue;
+                    alphaValue.value = alpha;
+                    // document.getElementById('result').textContent = rgb;
+                    
+                    // 更新显示的值
+                    redSlider.value = red;
+                    greenSlider.value = green;
+                    blueSlider.value = blue;
+                    alphaSlider.value = alpha;
+                });
+            };
+
+            // 处理图片加载错误
+            imgAvatar.onerror = function() {
+                console.error('图片加载失败，请检查URL是否正确或CORS设置');
+            };
 
             // 更新背景颜色
             function updateBackgroundColor() {
@@ -164,7 +372,9 @@
                 const alpha = alphaSlider.value;
 
                 // 设置目标控件的背景颜色
-                trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+                // trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+                trg.style.background = `linear-gradient(0deg, rgba(${Math.max(red-32,0)}, ${Math.max(green-32,0)}, ${Math.max(blue-32,0)}, ${alpha}) 0%, rgba(${Math.max(red-96,0)}, ${Math.max(green-96,0)}, ${Math.max(blue-96,0)}, ${alpha}) 49%, rgba(${Math.max(red-64,0)}, ${Math.max(green-64,0)}, ${Math.max(blue-64,0)}, ${alpha}) 51%, rgba(${red}, ${green}, ${blue}, ${alpha}) 100%) padding-box`;
+                trg.style.border = `0.2em solid rgba(${red}, ${green}, ${blue}, ${0.5})`;
 
                 // 更新显示的值
                 redValue.value = red;
@@ -181,7 +391,9 @@
                 const alpha = alphaValue.value;
 
                 // 设置目标控件的背景颜色
-                trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+                // trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+                trg.style.background = `linear-gradient(0deg, rgba(${Math.max(red-32,0)}, ${Math.max(green-32,0)}, ${Math.max(blue-32,0)}, ${alpha}) 0%, rgba(${Math.max(red-96,0)}, ${Math.max(green-96,0)}, ${Math.max(blue-96,0)}, ${alpha}) 49%, rgba(${Math.max(red-64,0)}, ${Math.max(green-64,0)}, ${Math.max(blue-64,0)}, ${alpha}) 51%, rgba(${red}, ${green}, ${blue}, ${alpha}) 100%) padding-box`;
+                trg.style.border = `0.2em solid rgba(${red}, ${green}, ${blue}, ${0.5})`;
 
                 // 更新显示的值
                 redSlider.value = red;
@@ -216,11 +428,122 @@
         <script>
             document.getElementById('exportButton').addEventListener('click', function() {
                 var element = document.getElementById('jw_aero'); // 获取你想要导出的 <div> 的 ID
+                
+                // 保存原始样式
+                const closeBtn = document.getElementById('close_btn');
+                const addBtn = document.getElementById('add_btn');
+                const reduceBtn = document.getElementById('reduce_btn');
+                
+                const originalCloseLineHeight = closeBtn.style.lineHeight;
+                const originalAddLineHeight = addBtn.style.lineHeight;
+                const originalReduceLineHeight = reduceBtn.style.lineHeight;
+                
+                // 保存 #jw_aero 的原始样式
+                const jwAero = document.getElementById('jw_aero');
+                const title = document.getElementById('title');
+                const imgs = document.getElementById('imgs');
+                
+                const originalJwAeroStyles = {
+                    margin: jwAero.style.margin,
+                    backgroundClip: jwAero.style.backgroundClip,
+                    overflow: jwAero.style.overflow,
+                    position: jwAero.style.position
+                };
+                
+                const originalTitleStyles = {
+                    position: title.style.position
+                };
+                
+                // 临时调整按钮样式用于导出
+                [closeBtn, addBtn, reduceBtn].forEach(btn => {
+                    btn.style.display = 'flex';
+                    btn.style.alignItems = 'center';
+                    btn.style.justifyContent = 'center';
+                    btn.style.padding = '0';
+                    btn.style.lineHeight = '4';
+                });
+
+                // reduceBtn.style.lineHeight = '999em';
+                
+                // 调整 #jw_aero 和其子元素的样式
+                jwAero.style.margin = '0';
+                jwAero.style.backgroundClip = 'border-box';
+                jwAero.style.overflow = 'visible';
+                jwAero.style.position = 'relative';
+                
+                // 确保标题正常显示
+                title.style.position = 'relative';
+                title.style.zIndex = '1';
+                
+                // 确保图片容器正常显示并水平居中
+                // imgs.style.width = '100%';
+                // imgs.style.maxWidth = '100%';
+                // // imgs.style.margin = '0 auto auto';
+                // imgs.style.display = 'flex';
+                // imgs.style.justifyContent = 'center';
+                // imgs.style.overflow = 'hidden';
+                
+                const new_btn = document.getElementsByClassName('new_btn');
+                for(let i = 0; i < new_btn.length; i++){
+                    new_btn[i].style.padding = '2px 5px 0.4em';
+                    // new_btn[i].style.padding = '0.2em 0.8em 0.4em';
+                }
+                // btn.style.padding = '2px 5px 0.4em';
+
+                // 强制重绘
+                element.offsetHeight;
+                
                 html2canvas(element, {
                     useCORS: true, // 允许跨域请求，如果div中有来自不同域名的资源
                     backgroundColor: null, // 设置背景颜色为null以保持透明度
-                    scale: 2, // 可选：提高输出图像的质量
+                    scale: 6, // 可选：提高输出图像的质量
                     dpi: window.devicePixelRatio // 根据设备像素比调整分辨率
+                }).then(function(canvas) {
+                    // 将 canvas 转换为图片，并创建一个下载链接
+                    var imgData = canvas.toDataURL('image/png');
+                    var link = document.createElement('a');
+                    link.href = imgData;
+                    link.download = 'exported-image.png'; // 设置文件名
+                    link.click();
+                    // 恢复按钮原始样式
+                    [closeBtn, addBtn, reduceBtn].forEach(btn => {
+                        btn.style.display = '';
+                        btn.style.alignItems = '';
+                        btn.style.justifyContent = '';
+                        btn.style.padding = '';
+                        btn.style.lineHeight = '';
+                    });
+                    
+                    // 恢复所有元素的原始样式
+                    Object.keys(originalJwAeroStyles).forEach(prop => {
+                        jwAero.style[prop] = originalJwAeroStyles[prop];
+                    });
+                    
+                    Object.keys(originalTitleStyles).forEach(prop => {
+                        title.style[prop] = originalTitleStyles[prop];
+                    });
+                    
+                    // 重置图片容器样式
+                    imgs.style.width = '';
+                    imgs.style.maxWidth = '';
+                    imgs.style.margin = '';
+                    imgs.style.display = '';
+                    imgs.style.justifyContent = '';
+                    imgs.style.overflow = '';
+
+                    for(let i = 0; i < new_btn.length; i++){
+                        new_btn[i].style.padding = '';
+                    }
+                });
+            },3000);
+        </script>
+        <!-- <script>
+            document.getElementById('exportButton').addEventListener('click', function() {
+                var element = document.getElementById('jw_aero'); // 获取你想要导出的 <div> 的 ID
+                canvasize(element, {
+                    scale: 3, // 图像缩放比例
+                    dpi: window.devicePixelRatio, // 根据设备像素比调整分辨率
+                    crossOrigin: 'anonymous' // 允许跨域请求
                 }).then(function(canvas) {
                     // 将 canvas 转换为图片，并创建一个下载链接
                     var imgData = canvas.toDataURL('image/png');
@@ -230,7 +553,29 @@
                     link.click();
                 });
             });
-        </script>
+        </script> -->
+
+        <!-- <script>
+            document.getElementById('exportButton').addEventListener('click', function() {
+                var element = document.getElementById('jw_aero'); // 获取你想要导出的 <div> 的 ID
+                domtoimage.toPng(element, {
+                    quality: 1, // 图像质量
+                    bgcolor: null, // 背景颜色
+                    width: element.offsetWidth,
+                    height: element.offsetHeight
+                })
+                .then(function (dataUrl) {
+                    // 创建一个下载链接
+                    var link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = 'exported-image.png'; // 设置文件名
+                    link.click();
+                })
+                .catch(function (error) {
+                    console.error('导出图片时出错:', error);
+                });
+            });
+        </script> -->
         <br><br>
         <a href="../Classic/index.html">JW Classic (Win9x-like)</a>
     </div>

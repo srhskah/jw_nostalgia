@@ -1,0 +1,71 @@
+【强制约束：修改后必须自检，避免以下错误】
+
+一、通用（任何改动都要遵守）
+1. 不要臆造不存在的类、方法、字段、Mapper 方法或配置项。修改前先检查：
+   - 实体类字段与数据库列是否一致（下划线→驼峰）；
+   - Mapper 接口是否已存在该方法，不存在则先补接口和 XML/注解；
+   - Service/Controller 注入的 Bean 是否已定义。
+2. 所有 Controller 方法必须返回项目统一的 Result 包装（如 Result.success/Result.error），不要直接返回实体或裸字符串，除非原方法已是该风格。
+3. 新增/修改接口必须考虑：参数校验（@Valid / 手动判空）、异常捕获、事务边界（多表写操作加 @Transactional）。
+4. 不要修改已经执行过的 Flyway 迁移脚本（db/migration 下已有版本号的文件），如需变更表结构，新增 V{日期}_x__xxx.sql，并使用幂等写法（IF NOT EXISTS / INSERT IGNORE / 先查后改）。
+5. 注意 MySQL 保留字（如 `match`、`order`、`group` 等），SQL 中必须使用反引号包裹，MyBatis-Plus 实体上加 @TableName("`表名`") 或确保生成的 SQL 带反引号。
+6. 时间字段统一用 LocalDateTime/LocalDate，JSON 序列化格式保持项目现有配置，不要混用 Date 和 LocalDateTime。
+7. 不要引入新的第三方依赖，除非我明确要求；不要擅自升级 Spring Boot / MyBatis-Plus / Flyway 版本。
+8. 【前端热更新规则】明确项目的前端生效目录。若项目采用了外置挂载（如 Docker 挂载外部 templates/、static/），则前端页面的更改（HTML / CSS / JS / 图片）一律只改外置目录。不要改 src/main/resources 下的副本，因为本地挂载的是外部目录，改内部副本刷新看不到。
+9. 必须保证当前所有功能都可以正常使用。安全加固、抽组件、去冗余都不能改变已有业务结果、权限范围和页面行为。改完按改动面自检相关页面和接口；拿不准会不会影响现有功能时，保持原行为。
+10. 新增或修改控件时，放在当前页面已有信息流里合适的位置：能加在现有控件上就不要另起一块。任何宽度下都不得撑破或溢出当前布局，信息要能看清，样式跟现有页面一致，安静、不抢主内容。
+11. 已有服务、片段、样式和接口能复用就复用，不要为同一件事再写一套平行实现。优先使用现有的 fragments 或公共组件，勿再各自发明 emoji 或另一套窄屏隐藏逻辑。
+12. 【长整型 ID 防精度丢失】本系统主键若为雪花 ID（约 19 位），超出 JavaScript Number 安全整数（2^53-1）。凡经浏览器 JSON/JS 处理的 ID（接口响应、data-*、拼 URL、本地比较）必须按字符串传递与使用：Jackson 可用 `@JsonSerialize(using = ToStringSerializer.class)` 或显式 `String.valueOf`；前端用 `String(id)` / 字符串比较，禁止依赖 JSON number。模板里 `th:href` 等服务端渲染路径不受此限，但若页面随后用 JS 重绘表格/链接，必须走字符串 ID，否则会精度丢失、查无数据。改动涉及 ID 序列化或前端拼链时必须自检此项。
+13. 【角色权限隔离】严格区分不同角色的权限边界（如管理员、业务操作员、普通用户）。涉及权限校验、消息通知受众、管理入口时，须按不同角色逻辑严格识别；勿把「仅普通用户」与「管理操作人员」混用同一套受众逻辑。
+14. 【资源受限环境优化】若服务器为小内存（如 2C4G）：生产环境默认关闭 MyBatis SQL stdout、应用 DEBUG 日志、开启 Thymeleaf/静态资源缓存；堆内存建议限制（如 ≤768m）；定时任务避免重复调度与「无活可做仍全量重算」。勿在生产长期开 LOGGING_LEVEL_COM_EXAMPLE=DEBUG 或 MYBATIS_LOG_IMPL=StdOutImpl。
+15. 【降级与容错机制】假设环境可能不是最新的（如旧镜像+新数据库，或反之，或直接导入备份而未重建）。在访问新字段或新表时，代码必须提供降级策略（如先探测 `information_schema`、捕获异常并记录日志、使用默认值），确保系统不因缺列、缺表而崩溃。禁止「只能在已跑完最新迁移的库上才能启动」。
+
+二、避免 500（服务端异常）
+1. 所有可能为 null 的查询结果、集合、Optional 必须先判空再使用，禁止直接 .get(0) / .stream() / .equals()。
+2. 字符串比较用 Objects.equals 或 "常量".equals(var)，禁止 var.equals("常量")。
+3. 除法、取模、数组/集合下标访问前必须做边界与零值判断。
+4. 日期解析、数字转换（Integer.parseInt 等）必须 try-catch 或使用安全工具方法。
+5. 外键关联查询不要假设数据一定存在；关联对象为 null 时要有兜底展示。
+6. 异步/定时任务中的异常必须捕获并记录日志，不能让异常冒泡导致线程池或调度器异常。
+7. 任何新增的 @RequestMapping 路径不要与已有路径冲突（检查 Controller 中已有映射）。
+
+三、避免 40x（客户端错误）
+1. 路径变量/请求参数必须与前端调用完全一致（@PathVariable 名称、@RequestParam 名称、required 属性）。
+2. POST/PUT 接口的 @RequestBody DTO 字段名必须与前端 JSON 字段名一致；如前端用驼峰，DTO 也用驼峰。
+3. 需要登录/权限的接口，确认拦截器或 Spring Security 配置不会误拦；公开页面（如排行榜、导出）要显式放行。
+4. 表单提交注意 CSRF（若启用了 Spring Security），Thymeleaf 表单中保留 th:action 自动注入的 CSRF hidden 字段，不要手写覆盖。
+5. 静态资源路径使用项目现有写法（如 @{/css/xxx.css}），不要硬编码 /static/ 前缀。
+6. 分页参数、枚举值、状态值要与后端枚举/常量定义一致，不要凭空写魔法值。
+
+四、避免 Spring EL / 表达式错误
+1. application.properties 中的 ${...} 只能引用已存在的配置项或环境变量；新增配置必须同时在 application.properties 中给出默认值或在 docker-compose 环境变量中声明。
+2. @Value("${xxx}") 必须提供默认值（如 ${xxx:default}），避免启动时因缺失配置导致 500 或启动失败。
+3. Thymeleaf 中的 ${...} 只能访问模型里真实存在的属性或已注册的 Bean（如 @beanName）；不要访问未放入 Model 的对象。
+4. SpEL 中不要调用可能为 null 的对象方法；复杂表达式先在 Controller 中算好放入 Model，模板里只做简单展示。
+5. 不要在 Thymeleaf 中写 Java 语法（如 new、强转、lambda），保持表达式简单。
+
+五、避免 Thymeleaf 模板错误
+1. 所有模板必须能被 Thymeleaf 解析：标签闭合、属性引号成对、th:* 属性拼写正确（th:text / th:each / th:if / th:href / th:action / th:object / th:field）。
+2. th:each 的语法必须是 "item : ${list}" 或 "item, stat : ${list}"，不要漏掉冒号或 ${}。
+3. th:if / th:unless 中的表达式不要以 HTML 实体形式出现；比较用 eq/ne/gt/lt 或 ==/!=，字符串常量加单引号。
+4. 表单绑定（th:object + th:field）时，确保 Controller 放入了对应对象，且字段名与 DTO 一致。
+5. 引用片段用 th:replace / th:insert / th:include 时，路径和片段名必须存在；片段参数传递语法正确。
+6. 模板中引用的静态资源统一用 @{...}，不要写死相对路径。
+7. 【唯一真相源】确认工程根目录或外置目录为前端权威目录。改页面必须直接改实时生效的目录，禁止改 classpath (src/main/resources) 下不生效的副本。
+8. 修改模板后提醒我：本地开发若关闭缓存且已挂载外置目录，浏览器 F5/强刷即可；纯 Java/配置/Flyway 改动才需要重新构建并启动容器。
+9. 页面级 <style> / 额外 <link> 不要写在 th:replace="~{fragments :: head(...)}" 的 <head> 内部——整段 head 会被替换，样式不会出现在最终 HTML。应把 <style> 放在 <body> 内（navbar 之后），或写入静态 css 文件再用 @{...} 引入。覆盖内联 style="display:none" 时需用 display: … !important。
+
+六、避免前端样式错误
+1. 只改样式时，必须修改实时生效的前端目录（如外置 static/），不要改 classpath 下不热更新的资源。
+2. 新增 CSS 类名要与现有命名风格一致，避免与已有类冲突；不要随意覆盖全局标签样式（如 body、table、button）。
+3. 使用项目已有的 CSS 框架/变量（如有），不要引入新的 CDN 或 UI 库。
+4. 布局改动要兼顾移动端：表格加 overflow-x:auto，按钮/输入框不要写死固定宽度导致小屏溢出。
+5. 修改 Thymeleaf 中嵌入的 style 时，确保不破坏原有选择器；不要使用内联 style 覆盖全局样式，除非必要。
+6. 图片/字体路径使用 @{...} 或相对 static 的正确路径，避免 404。
+7. 改完前端后，列出受影响的页面路径，方便我逐一 F5 验证；并确认改动已落在实时生效的目录中。
+
+七、输出要求
+1. 修改完成后，用简短列表说明：改了哪些文件、每个文件改了什么、可能影响哪些页面/接口。
+2. 如果本次改动涉及数据库、配置、模板目录、Docker 相关，单独标注“需要重启/需要迁移/需要重新挂载”。
+3. 如果发现我的需求与现有代码风格冲突，先指出冲突点，再给最小改动方案，不要擅自大改。
+4. 不要删除或重写我未要求修改的文件；不要顺手“优化”无关代码。
