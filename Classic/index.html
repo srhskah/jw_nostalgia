@@ -365,55 +365,59 @@
                 return Promise.all(tasks);
             }
 
-            // 导出前把浮雕写进 inline style，避免远端 html2canvas 丢掉 stylesheet / 原生 button 边框
+            // 仅稳定处理：外框、标题栏、右侧固定关闭钮（导出前写入 inline）
             function applyExportEmboss(root) {
-                var targets = [root].concat(
-                    Array.prototype.slice.call(root.querySelectorAll('button, .btn div, .file-input-trigger'))
-                );
+                var titleEl = root.querySelector('#title');
+                var closeBtn = root.querySelector('.btn div');
+                var targets = [root];
+                if (titleEl) targets.push(titleEl);
+                if (closeBtn) targets.push(closeBtn);
                 var backups = [];
                 for (var i = 0; i < targets.length; i++) {
                     var el = targets[i];
                     backups.push({
                         el: el,
-                        border: el.style.border,
-                        borderStyle: el.style.borderStyle,
-                        borderWidth: el.style.borderWidth,
-                        borderTopColor: el.style.borderTopColor,
-                        borderRightColor: el.style.borderRightColor,
-                        borderBottomColor: el.style.borderBottomColor,
-                        borderLeftColor: el.style.borderLeftColor,
-                        boxShadow: el.style.boxShadow,
-                        appearance: el.style.appearance,
-                        webkitAppearance: el.style.webkitAppearance,
-                        backgroundColor: el.style.backgroundColor
+                        cssText: el.style.cssText
                     });
-                    el.style.appearance = 'none';
-                    el.style.webkitAppearance = 'none';
-                    el.style.borderStyle = 'solid';
-                    el.style.borderWidth = (el === root) ? '2px' : '2px';
-                    el.style.borderTopColor = '#ffffff';
-                    el.style.borderLeftColor = '#ffffff';
-                    el.style.borderRightColor = '#808080';
-                    el.style.borderBottomColor = '#808080';
-                    el.style.boxShadow = 'inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #404040';
-                    if (!el.style.backgroundColor) {
-                        el.style.backgroundColor = '#cdcdcd';
+                    if (el === root) {
+                        el.style.boxSizing = 'border-box';
+                        el.style.borderStyle = 'solid';
+                        el.style.borderWidth = '2px';
+                        el.style.borderTopColor = '#ffffff';
+                        el.style.borderLeftColor = '#ffffff';
+                        el.style.borderRightColor = '#000000';
+                        el.style.borderBottomColor = '#000000';
+                        el.style.boxShadow = 'none';
+                    } else if (el === titleEl) {
+                        el.style.boxSizing = 'border-box';
+                        el.style.height = '22px';
+                        el.style.lineHeight = '16px';
+                        el.style.fontSize = '12px';
+                        el.style.padding = '3px 3px 3px 4px';
+                        el.style.overflow = 'hidden';
+                        el.style.color = '#ffffff';
+                    } else if (el === closeBtn) {
+                        el.style.boxSizing = 'border-box';
+                        el.style.borderStyle = 'solid';
+                        el.style.borderWidth = '2px';
+                        el.style.borderTopColor = '#ffffff';
+                        el.style.borderLeftColor = '#ffffff';
+                        el.style.borderRightColor = '#000000';
+                        el.style.borderBottomColor = '#000000';
+                        el.style.boxShadow = 'none';
+                        el.style.width = '16px';
+                        el.style.height = '14px';
+                        el.style.backgroundColor = '#c0c0c0';
+                        el.style.lineHeight = '10px';
+                        el.style.fontSize = '12px';
+                        el.style.fontFamily = 'Arial, Helvetica, sans-serif';
+                        el.style.textAlign = 'center';
+                        el.style.color = '#000000';
                     }
                 }
                 return function restoreExportEmboss() {
                     for (var j = 0; j < backups.length; j++) {
-                        var b = backups[j];
-                        b.el.style.border = b.border;
-                        b.el.style.borderStyle = b.borderStyle;
-                        b.el.style.borderWidth = b.borderWidth;
-                        b.el.style.borderTopColor = b.borderTopColor;
-                        b.el.style.borderRightColor = b.borderRightColor;
-                        b.el.style.borderBottomColor = b.borderBottomColor;
-                        b.el.style.borderLeftColor = b.borderLeftColor;
-                        b.el.style.boxShadow = b.boxShadow;
-                        b.el.style.appearance = b.appearance;
-                        b.el.style.webkitAppearance = b.webkitAppearance;
-                        b.el.style.backgroundColor = b.backgroundColor;
+                        backups[j].el.style.cssText = backups[j].cssText;
                     }
                 };
             }

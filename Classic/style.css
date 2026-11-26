@@ -16,14 +16,15 @@
     width:25%;
     /* margin-left: 25%; */
     margin-top: 5%;
-    /* px + 分边颜色 + inset shadow：远端 html2canvas 对 em/outset 不稳定 */
+    /* 外框浮雕：固定 px 分边颜色，导出不依赖 em/outset/shadow */
+    box-sizing: border-box;
     border-style: solid;
     border-width: 2px;
     border-top-color: #ffffff;
     border-left-color: #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-    box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #404040;
+    border-right-color: #000000;
+    border-bottom-color: #000000;
+    box-shadow: none;
     position: relative;
     left: 50%;
     transform: translateX(-50%); /* 向左回退自身宽度的50% */
@@ -36,36 +37,39 @@
 #title{
     background: #0000cc;
     color: white;
-    font-size: 0.8em;
-    padding: 0.2em 0.2em 0.3em;
-    height: 1.5em;
-    line-height: 1.6em;
+    /* 固定 px，避免字体未加载时标题栏/关闭钮尺寸漂移 */
+    font-size: 12px;
+    padding: 3px 3px 3px 4px;
+    height: 22px;
+    line-height: 16px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .btn{
     float:right;
-    margin: 0.1em;
+    margin: 1px 1px 0 0;
 }
 
+/* 标题栏右侧固定关闭钮：高对比分边框，不依赖 inset shadow（远端导出更稳） */
 .btn div{
-    /* padding: 0.1em; */
-    width: 1em;
-    height: 1em;
-    /* width: 1.2em; */
-    /* height: 1.2em; */
-    background: #cdcdcd;
+    box-sizing: border-box;
+    width: 16px;
+    height: 14px;
+    background: #c0c0c0;
     text-align: center;
-    font-family:Arial, Helvetica, sans-serif;
-    font-size:larger;
-    line-height: 1em;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 10px;
     color: black;
     border-style: solid;
     border-width: 2px;
     border-top-color: #ffffff;
     border-left-color: #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-    box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #404040;
+    border-right-color: #000000;
+    border-bottom-color: #000000;
+    box-shadow: none;
 }
 
 #box{
