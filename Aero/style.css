@@ -23,31 +23,35 @@
     min-width: 20em;
     width:25%;
     /* margin-left: 25%; */
-    margin-top: 5%; 
-    /* border: 0.2em solid rgba(240,240,240,0.25); */
-    border: 0.2em solid rgba(171,205,249,0.25);
-    border-radius: 0.5em;
+    margin-top: 5%;
+    /* 固定 px 边框/圆角，避免 em+字体回退导致本地/远端导出窗框不一致 */
+    box-sizing: border-box;
+    border: 3px solid rgba(171,205,249,0.25);
+    border-radius: 8px;
     /*父元素position: relative时，保持水平垂直居中*/
     position: relative;
     left: 50%;
-    transform: translateX(-50%); /* 向左回退自身宽度的50%
+    transform: translateX(-50%); /* 向左回退自身宽度的50% */
     /* Simulate an outset effect using shadows */
-    /* box-shadow: 
+    /* box-shadow:
         0 0.15em 0.15em rgba(0,0,0,0.3),
         0 -0.15em 0.15em rgba(255,255,255,0.9); */
 }
 
 #jw_aero>div{
-    margin: 0 0.3em 0.3em;
+    margin: 0 5px 5px;
 }
 
 #title{
     /* background: #0000cc; */
     color: black;
-    font-size: 0.8em;
-    padding: 0.2em 0.2em 0.3em;
-    height: 1.5em;
-    line-height: 1.6em;
+    /* 固定 px；高度需盖住 22px 圆形钮，禁止裁切下沿 */
+    font-size: 13px;
+    padding: 4px 3px;
+    height: 30px;
+    line-height: 22px;
+    box-sizing: border-box;
+    overflow: visible;
 }
 
 #top-toolbar{
@@ -74,32 +78,33 @@
 
 
 .btn{
-    margin: 0.1em;
+    margin: 0 2px;
 }
 
 .btn div{
-    margin: 0 0.05em 0;
+    margin: 0 2px 0;
     float:right;
-    width: 1em;
-    height: 1em;
-    border-radius: 1em;
+    box-sizing: border-box;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
     background: #cdcdcd;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family:Arial, Helvetica, sans-serif;
-    font-size:larger;
-    line-height: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    line-height: 1;
     padding: 0;
     color: white;
-    border: 0.2em solid white;
+    border: 3px solid white;
     /* box-shadow: 0.1em 0.1em 0.1em 0px rgb(0, 0, 0); */
 }
 
 #box{
     /* background: white; */
     color:black;
-    padding: 0 0.2em 0;
+    padding: 0 3px 0;
 }
 
 #chooseImage {
@@ -119,15 +124,19 @@
 
 
 button {
-    padding: 2px 5px;
-    border-radius: 0.5em;
-    /* border-radius: 5px; */
-    border: 0.2em solid white;
+    /* 去掉系统原生按钮外观，否则远端 html2canvas 常丢掉自定义白边/圆角渐变 */
+    appearance: none;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+    padding: 2px 8px;
+    border-radius: 8px;
+    border: 3px solid white;
     /* background: linear-gradient(0deg, rgba(217,240,252,1) 0%, rgba(167,217,245,1) 49%, rgba(188,229,252,1) 51%,  rgba(234,246,253,1) 100%); */
     background: linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(225,225,225,1) 49%, rgba(235,235,235,1) 51%,  rgba(255,255,255,1) 100%);
     /* background-color: #cdcdcd; */
-    font-family: Segoe UI, 'HarmonyOS Sans SC';
-    font-size: 0.8em;
+    font-family: 'Segoe UI', 'HarmonyOS Sans SC', sans-serif;
+    font-size: 13px;
+    line-height: 18px;
     outline: none;
     color: #000;
     cursor: pointer;

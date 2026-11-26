@@ -27,9 +27,9 @@
 <body>
     <div class="satu">
         <div id="jw_aero">
-            <div id="title" style="margin: 0.3em;">
-                <p style="float: left;margin-block-start: 0;z-index: 1;">🖼️&NonBreakingSpace;</p>
-                <p id="title_text" style="float: left;margin-block-start: 0;z-index: 1;">Image Viewer</p>
+            <div id="title" style="margin: 5px;">
+                <p style="float: left;margin: 0;z-index: 1;line-height: 22px;">🖼️&NonBreakingSpace;</p>
+                <p id="title_text" style="float: left;margin: 0;z-index: 1;line-height: 22px;">Image Viewer</p>
                 <div class="btn" style="z-index: 2;">
                     <!-- <div></div>
                     <div></div> -->
@@ -387,7 +387,7 @@
                 // 设置目标控件的背景颜色
                 // trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
                 trg.style.background = `linear-gradient(0deg, rgba(${Math.max(red-32,0)}, ${Math.max(green-32,0)}, ${Math.max(blue-32,0)}, ${alpha}) 0%, rgba(${Math.max(red-96,0)}, ${Math.max(green-96,0)}, ${Math.max(blue-96,0)}, ${alpha}) 49%, rgba(${Math.max(red-64,0)}, ${Math.max(green-64,0)}, ${Math.max(blue-64,0)}, ${alpha}) 51%, rgba(${red}, ${green}, ${blue}, ${alpha}) 100%) padding-box`;
-                trg.style.border = `0.2em solid rgba(${red}, ${green}, ${blue}, ${0.5})`;
+                trg.style.border = `3px solid rgba(${red}, ${green}, ${blue}, ${0.5})`;
 
                 // 更新显示的值
                 redValue.value = red;
@@ -406,7 +406,7 @@
                 // 设置目标控件的背景颜色
                 // trg.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
                 trg.style.background = `linear-gradient(0deg, rgba(${Math.max(red-32,0)}, ${Math.max(green-32,0)}, ${Math.max(blue-32,0)}, ${alpha}) 0%, rgba(${Math.max(red-96,0)}, ${Math.max(green-96,0)}, ${Math.max(blue-96,0)}, ${alpha}) 49%, rgba(${Math.max(red-64,0)}, ${Math.max(green-64,0)}, ${Math.max(blue-64,0)}, ${alpha}) 51%, rgba(${red}, ${green}, ${blue}, ${alpha}) 100%) padding-box`;
-                trg.style.border = `0.2em solid rgba(${red}, ${green}, ${blue}, ${0.5})`;
+                trg.style.border = `3px solid rgba(${red}, ${green}, ${blue}, ${0.5})`;
 
                 // 更新显示的值
                 redSlider.value = red;
@@ -439,116 +439,153 @@
         </script>
         <button id="exportButton">导出对话框为图片</button>
         <script>
-            document.getElementById('exportButton').addEventListener('click', function() {
-                var element = document.getElementById('jw_aero'); // 获取你想要导出的 <div> 的 ID
-                
-                // 保存原始样式
-                const closeBtn = document.getElementById('close_btn');
-                const addBtn = document.getElementById('add_btn');
-                const reduceBtn = document.getElementById('reduce_btn');
-                
-                const originalCloseLineHeight = closeBtn.style.lineHeight;
-                const originalAddLineHeight = addBtn.style.lineHeight;
-                const originalReduceLineHeight = reduceBtn.style.lineHeight;
-                
-                // 保存 #jw_aero 的原始样式
-                const jwAero = document.getElementById('jw_aero');
-                const title = document.getElementById('title');
-                const imgs = document.getElementById('imgs');
-                
-                const originalJwAeroStyles = {
-                    margin: jwAero.style.margin,
-                    backgroundClip: jwAero.style.backgroundClip,
-                    overflow: jwAero.style.overflow,
-                    position: jwAero.style.position
-                };
-                
-                const originalTitleStyles = {
-                    position: title.style.position
-                };
-                
-                // 临时调整按钮样式用于导出
-                [closeBtn, addBtn, reduceBtn].forEach(btn => {
-                    btn.style.display = 'flex';
-                    btn.style.alignItems = 'center';
-                    btn.style.justifyContent = 'center';
-                    btn.style.padding = '0';
-                    btn.style.lineHeight = '4';
-                });
-
-                // reduceBtn.style.lineHeight = '999em';
-                
-                // 调整 #jw_aero 和其子元素的样式
-                jwAero.style.margin = '0';
-                jwAero.style.backgroundClip = 'border-box';
-                jwAero.style.overflow = 'visible';
-                jwAero.style.position = 'relative';
-                
-                // 确保标题正常显示
-                title.style.position = 'relative';
-                title.style.zIndex = '1';
-                
-                // 确保图片容器正常显示并水平居中
-                // imgs.style.width = '100%';
-                // imgs.style.maxWidth = '100%';
-                // // imgs.style.margin = '0 auto auto';
-                // imgs.style.display = 'flex';
-                // imgs.style.justifyContent = 'center';
-                // imgs.style.overflow = 'hidden';
-                
-                const new_btn = document.getElementsByClassName('new_btn');
-                for(let i = 0; i < new_btn.length; i++){
-                    new_btn[i].style.padding = '2px 5px 0.4em';
-                    // new_btn[i].style.padding = '0.2em 0.8em 0.4em';
+            function imgSrcToDataURL(img) {
+                var src = img.getAttribute('src') || '';
+                if (!src || src.indexOf('data:') === 0) {
+                    return Promise.resolve();
                 }
-                // btn.style.padding = '2px 5px 0.4em';
+                return fetch(src).then(function(res) {
+                    if (!res.ok) throw new Error('fetch image failed: ' + res.status);
+                    return res.blob();
+                }).then(function(blob) {
+                    return new Promise(function(resolve, reject) {
+                        var reader = new FileReader();
+                        reader.onload = function() { resolve(reader.result); };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+                }).then(function(dataUrl) {
+                    return new Promise(function(resolve, reject) {
+                        img.onload = function() { resolve(); };
+                        img.onerror = reject;
+                        img.removeAttribute('crossorigin');
+                        img.src = dataUrl;
+                    });
+                }).catch(function(err) {
+                    console.warn('导出前转换图片失败:', src, err);
+                });
+            }
 
-                // 强制重绘
-                element.offsetHeight;
-                
-                html2canvas(element, {
-                    useCORS: true, // 允许跨域请求，如果div中有来自不同域名的资源
-                    backgroundColor: null, // 设置背景颜色为null以保持透明度
-                    scale: 6, // 可选：提高输出图像的质量
-                    dpi: window.devicePixelRatio // 根据设备像素比调整分辨率
+            function ensureExportImagesClean(root) {
+                var imgs = root.querySelectorAll('img');
+                var tasks = [];
+                for (var i = 0; i < imgs.length; i++) {
+                    tasks.push(imgSrcToDataURL(imgs[i]));
+                }
+                return Promise.all(tasks);
+            }
+
+            // 仅稳定处理：外框、标题栏、右侧圆形标题钮、底栏 .new_btn（导出前写入 inline）
+            function applyExportChrome(root) {
+                var backups = [];
+                function backup(el) {
+                    if (!el) return;
+                    backups.push({ el: el, cssText: el.style.cssText });
+                }
+
+                backup(root);
+                root.style.margin = '0';
+                root.style.backgroundClip = 'border-box';
+                root.style.overflow = 'visible';
+                root.style.position = 'relative';
+                root.style.boxSizing = 'border-box';
+                root.style.borderRadius = '8px';
+                // 保留运行时颜色，边框宽度改为固定 px
+                var borderColor = root.style.borderColor || window.getComputedStyle(root).borderColor;
+                root.style.borderStyle = 'solid';
+                root.style.borderWidth = '3px';
+                if (borderColor) root.style.borderColor = borderColor;
+
+                var titleEl = root.querySelector('#title');
+                backup(titleEl);
+                if (titleEl) {
+                    titleEl.style.position = 'relative';
+                    titleEl.style.zIndex = '1';
+                    titleEl.style.boxSizing = 'border-box';
+                    titleEl.style.margin = '5px';
+                    titleEl.style.height = '30px';
+                    titleEl.style.lineHeight = '22px';
+                    titleEl.style.fontSize = '13px';
+                    titleEl.style.padding = '4px 3px';
+                    titleEl.style.overflow = 'visible';
+                    titleEl.style.color = '#000000';
+                }
+
+                var captionIds = ['close_btn', 'add_btn', 'reduce_btn'];
+                for (var c = 0; c < captionIds.length; c++) {
+                    var cap = document.getElementById(captionIds[c]);
+                    backup(cap);
+                    if (!cap) continue;
+                    cap.style.boxSizing = 'border-box';
+                    cap.style.display = 'flex';
+                    cap.style.alignItems = 'center';
+                    cap.style.justifyContent = 'center';
+                    cap.style.width = '22px';
+                    cap.style.height = '22px';
+                    cap.style.borderRadius = '50%';
+                    cap.style.border = '3px solid #ffffff';
+                    cap.style.padding = '0';
+                    cap.style.margin = '0 2px';
+                    cap.style.lineHeight = '1';
+                    cap.style.fontSize = '14px';
+                    cap.style.fontFamily = 'Arial, Helvetica, sans-serif';
+                    cap.style.color = '#ffffff';
+                }
+
+                var newBtns = root.querySelectorAll('.new_btn');
+                for (var n = 0; n < newBtns.length; n++) {
+                    var nb = newBtns[n];
+                    backup(nb);
+                    nb.style.appearance = 'none';
+                    nb.style.webkitAppearance = 'none';
+                    nb.style.boxSizing = 'border-box';
+                    nb.style.padding = '2px 8px';
+                    nb.style.border = '3px solid #ffffff';
+                    nb.style.borderRadius = '8px';
+                    nb.style.fontSize = '13px';
+                    nb.style.lineHeight = '18px';
+                    nb.style.fontFamily = "'Segoe UI', 'HarmonyOS Sans SC', sans-serif";
+                    nb.style.background = 'linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(225,225,225,1) 49%, rgba(235,235,235,1) 51%, rgba(255,255,255,1) 100%)';
+                    nb.style.color = '#000000';
+                    nb.style.margin = '5px';
+                }
+
+                return function restoreExportChrome() {
+                    for (var j = 0; j < backups.length; j++) {
+                        backups[j].el.style.cssText = backups[j].cssText;
+                    }
+                };
+            }
+
+            document.getElementById('exportButton').addEventListener('click', function() {
+                var element = document.getElementById('jw_aero');
+                var restoreChrome = null;
+                var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+
+                fontsReady.then(function() {
+                    return ensureExportImagesClean(element);
+                }).then(function() {
+                    restoreChrome = applyExportChrome(element);
+                    element.offsetHeight; // 强制重绘后再截图
+                    return html2canvas(element, {
+                        useCORS: true,
+                        allowTaint: false,
+                        backgroundColor: null,
+                        scale: 6
+                    });
                 }).then(function(canvas) {
-                    // 将 canvas 转换为图片，并创建一个下载链接
+                    if (restoreChrome) restoreChrome();
                     var imgData = canvas.toDataURL('image/png');
                     var link = document.createElement('a');
                     link.href = imgData;
-                    link.download = 'exported-image.png'; // 设置文件名
+                    link.download = 'exported-image.png';
                     link.click();
-                    // 恢复按钮原始样式
-                    [closeBtn, addBtn, reduceBtn].forEach(btn => {
-                        btn.style.display = '';
-                        btn.style.alignItems = '';
-                        btn.style.justifyContent = '';
-                        btn.style.padding = '';
-                        btn.style.lineHeight = '';
-                    });
-                    
-                    // 恢复所有元素的原始样式
-                    Object.keys(originalJwAeroStyles).forEach(prop => {
-                        jwAero.style[prop] = originalJwAeroStyles[prop];
-                    });
-                    
-                    Object.keys(originalTitleStyles).forEach(prop => {
-                        title.style[prop] = originalTitleStyles[prop];
-                    });
-                    
-                    // 重置图片容器样式
-                    imgs.style.width = '';
-                    imgs.style.maxWidth = '';
-                    imgs.style.margin = '';
-                    imgs.style.display = '';
-                    imgs.style.justifyContent = '';
-                    imgs.style.overflow = '';
-
-                    for(let i = 0; i < new_btn.length; i++){
-                        new_btn[i].style.padding = '';
-                    }
+                }).catch(function(err) {
+                    if (restoreChrome) restoreChrome();
+                    console.error(err);
+                    alert('导出失败：画布被跨域图片污染。请确认标题图标/内容图可同源访问，或重新选择图片后再试。');
                 });
-            },3000);
+            });
         </script>
         <!-- <script>
             document.getElementById('exportButton').addEventListener('click', function() {
