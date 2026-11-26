@@ -375,6 +375,8 @@
       } else {
         stopLoop();
       }
+      // notifyState 可能尚未定义（初始化早期）；导出 UI 同步放在末尾首次调用
+      if (typeof notifyState === 'function') notifyState();
     }
 
     // —— UI ——
@@ -458,6 +460,7 @@
       } else {
         requestDraw(true);
       }
+      notifyState();
     });
     var resetBtn = document.createElement('button');
     resetBtn.type = 'button';
@@ -474,6 +477,7 @@
         }
       }
       requestDraw(true);
+      notifyState();
     });
     var exportBtn = document.createElement('button');
     exportBtn.type = 'button';
@@ -481,15 +485,46 @@
     exportBtn.addEventListener('click', function () {
       exportPng();
     });
+    var exportGifBtn = document.createElement('button');
+    exportGifBtn.type = 'button';
+    exportGifBtn.textContent = '导出 VHS 动图 (GIF)';
+    exportGifBtn.style.display = 'none';
+    exportGifBtn.addEventListener('click', function () {
+      exportGif();
+    });
     tools.appendChild(pauseLabel);
     tools.appendChild(resetBtn);
     tools.appendChild(exportBtn);
+    tools.appendChild(exportGifBtn);
     body.appendChild(tools);
     panel.appendChild(body);
     opts.panelHost.appendChild(panel);
 
+    function notifyState() {
+      syncGifButtonVisibility();
+      if (typeof opts.onStateChange === 'function') {
+        try {
+          opts.onStateChange({
+            enabled: enabled,
+            paused: !!params.pauseAnim,
+            hasImage: hasImage,
+            canExportGif: canExportGif()
+          });
+        } catch (e) { /* ignore */ }
+      }
+    }
+
+    function canExportGif() {
+      return !!(enabled && hasImage && !params.pauseAnim && imgEl.naturalWidth);
+    }
+
+    function syncGifButtonVisibility() {
+      exportGifBtn.style.display = canExportGif() ? '' : 'none';
+    }
+
     enableCb.addEventListener('change', function () {
       setEnabled(enableCb.checked);
+      notifyState();
     });
 
     function exportPng() {
@@ -539,8 +574,143 @@
       requestDraw(true);
     }
 
+    function prepareFullResCanvas() {
+      var max = maxTexSize();
+      var w = sourceW || imgEl.naturalWidth;
+      var h = sourceH || imgEl.naturalHeight;
+      var scale = 1;
+      if (w > max || h > max) scale = Math.min(max / w, max / h);
+      // GIF 再限一边，避免动图过大
+      var gifMax = 720;
+      var fw = Math.max(1, Math.floor(w * scale));
+      var fh = Math.max(1, Math.floor(h * scale));
+      if (fw > gifMax || fh > gifMax) {
+        var s2 = Math.min(gifMax / fw, gifMax / fh);
+        fw = Math.max(1, Math.floor(fw * s2));
+        fh = Math.max(1, Math.floor(fh * s2));
+      }
+      var ow = canvas.width;
+      var oh = canvas.height;
+      canvas.width = fw;
+      canvas.height = fh;
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgEl);
+      return { ow: ow, oh: oh, width: fw, height: fh };
+    }
+
+    function restorePreviewCanvas(saved) {
+      canvas.width = saved.ow;
+      canvas.height = saved.oh;
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      try {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgEl);
+      } catch (e2) { /* ignore */ }
+      requestDraw(true);
+    }
+
+    function downloadBlob(blob, filename) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    }
+
+    function yieldTick() {
+      return new Promise(function (resolve) {
+        setTimeout(resolve, 0);
+      });
+    }
+
+    function exportGif() {
+      if (!global.JwGif || typeof global.JwGif.encodeFromCanvases !== 'function') {
+        alert('GIF 编码器未加载，请刷新页面后重试。');
+        return;
+      }
+      if (!hasImage || !imgEl.naturalWidth) {
+        alert('请先选择图片，再导出 VHS 动图。');
+        return;
+      }
+      if (!enabled) {
+        alert('请先启用 HEISEI-VHS。');
+        return;
+      }
+      if (params.pauseAnim) {
+        alert('请取消勾选「暂停动画」后再导出 GIF 动图。');
+        return;
+      }
+
+      var frameCount = 24;
+      var durationSec = 2;
+      var delayMs = 100;
+      var saved = null;
+      var wasEnabled = enabled;
+      exportGifBtn.disabled = true;
+      exportGifBtn.textContent = '导出中…';
+      stopLoop();
+
+      Promise.resolve().then(function () {
+        saved = prepareFullResCanvas();
+        var frames = [];
+        var i = 0;
+        function next() {
+          if (i >= frameCount) {
+            return frames;
+          }
+          var t = (i / frameCount) * durationSec;
+          drawFrame(t);
+          var snap = document.createElement('canvas');
+          snap.width = canvas.width;
+          snap.height = canvas.height;
+          snap.getContext('2d').drawImage(canvas, 0, 0);
+          frames.push(snap);
+          i += 1;
+          return yieldTick().then(next);
+        }
+        return next();
+      }).then(function (frames) {
+        var blob = global.JwGif.encodeFromCanvases(frames, delayMs);
+        downloadBlob(blob, 'heisei-vhs.gif');
+      }).catch(function (err) {
+        console.error(err);
+        alert('导出 GIF 失败：' + (err && err.message ? err.message : 'unknown'));
+      }).then(function () {
+        if (saved) restorePreviewCanvas(saved);
+        if (wasEnabled && !params.pauseAnim && hasImage) {
+          rafId = requestAnimationFrame(loop);
+        }
+        exportGifBtn.disabled = false;
+        exportGifBtn.textContent = '导出 VHS 动图 (GIF)';
+        notifyState();
+      });
+    }
+
+    function renderAtTime(timeSec) {
+      if (!enabled || !hasImage) return false;
+      drawFrame(timeSec);
+      return true;
+    }
+
+    function beginCapture() {
+      stopLoop();
+    }
+
+    function endCapture() {
+      if (enabled && hasImage && !params.pauseAnim) {
+        stopLoop();
+        rafId = requestAnimationFrame(loop);
+      } else {
+        requestDraw(true);
+      }
+    }
+
     function onImgReady() {
       uploadImage();
+      notifyState();
     }
 
     imgEl.addEventListener('load', onImgReady);
@@ -559,9 +729,16 @@
     if (opacityInput) opacityInput.addEventListener('input', syncOpacity);
     syncOpacity();
 
+    notifyState();
+
     return {
       setEnabled: setEnabled,
       isEnabled: function () { return enabled; },
+      isPaused: function () { return !!params.pauseAnim; },
+      canExportGif: canExportGif,
+      renderAtTime: renderAtTime,
+      beginCapture: beginCapture,
+      endCapture: endCapture,
       redraw: function () { requestDraw(true); },
       destroy: function () {
         stopLoop();
