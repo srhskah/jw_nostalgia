@@ -36,7 +36,10 @@
         <div id="jw_os9">
             <div class="os9-titlebar" id="os9-titlebar" title="双击折叠/展开窗口">
                 <div class="os9-box close" id="os9-close" title="Close"></div>
+                <!-- 凹线用真实 DOM 线，避免 SVG 背景导出花屏 -->
+                <div class="os9-stripes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
                 <div class="os9-title-text" id="title_text">Image Viewer</div>
+                <div class="os9-stripes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
                 <div class="os9-titlebar-right">
                     <div class="os9-box collapse" id="os9-collapse" title="WindowShade"></div>
                     <div class="os9-box zoom" id="os9-zoom" title="Zoom"></div>

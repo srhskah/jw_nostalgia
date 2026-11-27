@@ -165,9 +165,12 @@ body.os9-desktop {
     min-width: 220px;
     max-width: 520px;
     margin: 36px auto 12px;
-    border: 1px solid #000;
-    border-radius: 4px 4px 0 0;
-    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+    border: 1px solid #000000;
+    border-radius: 3px 3px 0 0;
+    box-shadow:
+        inset 1px 1px 0 #ffffff,
+        inset -1px -1px 0 #666666,
+        1px 1px 0 #000000;
     position: relative;
     z-index: 2;
     text-align: left;
@@ -178,22 +181,44 @@ body.os9-desktop {
 }
 
 .os9-titlebar {
-    height: 20px;
+    height: 22px;
     display: flex;
     align-items: center;
-    padding: 0 5px;
-    gap: 6px;
-    background: repeating-linear-gradient(
-        to bottom,
-        var(--os9-light) 0 1px,
-        var(--os9-platinum) 1px 2px,
-        var(--os9-stripe) 2px 3px,
-        var(--os9-platinum) 3px 4px
-    );
-    border-bottom: 1px solid var(--os9-darker);
-    border-radius: 3px 3px 0 0;
+    padding: 0 4px;
+    gap: 5px;
+    background-color: #dddddd;
+    border-bottom: 1px solid #555555;
+    border-radius: 2px 2px 0 0;
     cursor: default;
     user-select: none;
+}
+
+/* 标题栏凹线：仅「按钮 ↔ 标题」之间；DOM 横线，左右一致、导出不花 */
+.os9-stripes {
+    flex: 1 1 0;
+    min-width: 10px;
+    height: 13px;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+    box-sizing: border-box;
+    padding: 1px 0;
+    background: #cfcfcf;
+    border-top: 1px solid #555555;
+    border-bottom: 1px solid #ffffff;
+    overflow: hidden;
+}
+
+.os9-stripes i {
+    display: block;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #4a4a4a;
+    flex: 0 0 1px;
 }
 
 .os9-box {
@@ -231,27 +256,34 @@ body.os9-desktop {
 }
 
 .os9-title-text {
-    flex: 1;
+    flex: 0 0 auto;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
     text-align: center;
     font-weight: bold;
     font-size: 12px;
-    background: var(--os9-platinum);
-    padding: 0 8px;
-    margin: 0 4px;
-    overflow: hidden;
+    line-height: 1;
+    background: #dddddd;
+    padding: 0 10px;
+    overflow: visible;
     white-space: nowrap;
-    text-overflow: ellipsis;
+    /* 抵消字体度量 / html2canvas 偏下，光学垂直居中 */
+    position: relative;
+    top: -1px;
 }
 
 .os9-titlebar-right {
     display: flex;
     gap: 4px;
-    margin-left: auto;
+    flex: 0 0 auto;
 }
 
 .os9-window-body {
-    background: var(--os9-light);
-    border-top: 1px solid var(--os9-mid);
+    background: #ffffff;
+    border-top: 1px solid #999999;
 }
 
 #preview-host {
