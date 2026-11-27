@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JW Mac OS 9</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="../vhs/heisei-vhs.js"></script>
+</head>
+<body class="os9-desktop">
+    <header class="os9-menubar">
+        <span class="os9-apple" title="Apple" aria-label="Apple menu" role="img"></span>
+        <nav>
+            <span>File</span>
+            <span>Edit</span>
+            <span>View</span>
+            <span>Special</span>
+            <span>Help</span>
+        </nav>
+        <div class="os9-menubar-right">
+            <span id="os9-app-menu">Image Viewer</span>
+            <span id="os9-clock">--:--</span>
+        </div>
+    </header>
+
+    <div class="os9-desktop-icons" aria-hidden="true">
+        <div class="os9-icon"><div class="os9-icon-img hd"></div><span class="os9-icon-label">Macintosh HD</span></div>
+        <div class="os9-icon"><div class="os9-icon-img folder"></div><span class="os9-icon-label">Documents</span></div>
+        <div class="os9-icon"><div class="os9-icon-img trash"></div><span class="os9-icon-label">Trash</span></div>
+    </div>
+
+    <div class="satu">
+        <div id="jw_os9">
+            <div class="os9-titlebar" id="os9-titlebar" title="双击折叠/展开窗口">
+                <div class="os9-box close" id="os9-close" title="Close"></div>
+                <div class="os9-title-text" id="title_text">Image Viewer</div>
+                <div class="os9-titlebar-right">
+                    <div class="os9-box collapse" id="os9-collapse" title="WindowShade"></div>
+                    <div class="os9-box zoom" id="os9-zoom" title="Zoom"></div>
+                </div>
+            </div>
+            <div class="os9-window-body">
+                <div id="preview-host">
+                    <img id="img-avatar" alt="">
+                </div>
+                <div id="box"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dua">
+        <br>
+        <div style="text-align:center;">
+            <input id="chooseImage" type="file" name="file" accept="image/*">
+            <button type="button" class="file-input-trigger">选择图片</button>
+            &nbsp;
+            <button type="button" id="addButton">增加按钮</button>
+        </div>
+        <script>
+            $("#chooseImage").on("change", function () {
+                var file = this.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#img-avatar").attr("src", e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+            $(".file-input-trigger").on("click", function () {
+                $("#chooseImage").trigger("click");
+            });
+        </script>
+
+        <br>
+        <table id="buttonTable">
+            <thead><tr><th>按钮名称</th><th>操作</th></tr></thead>
+            <tbody></tbody>
+        </table>
+        <script>
+            document.getElementById("addButton").addEventListener("click", function () {
+                var newRow = document.createElement("tr");
+                var nameCell = document.createElement("td");
+                var nameInput = document.createElement("input");
+                nameInput.type = "text";
+                nameInput.value = "新按钮";
+                nameCell.appendChild(nameInput);
+
+                var actionCell = document.createElement("td");
+                var deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.textContent = "删除";
+
+                var newButton = document.createElement("button");
+                newButton.type = "button";
+                newButton.textContent = nameInput.value;
+                newButton.style.margin = "4px";
+                document.getElementById("box").appendChild(newButton);
+
+                deleteButton.addEventListener("click", function () {
+                    newRow.remove();
+                    newButton.remove();
+                });
+                actionCell.appendChild(deleteButton);
+                newRow.appendChild(nameCell);
+                newRow.appendChild(actionCell);
+                document.querySelector("#buttonTable tbody").appendChild(newRow);
+
+                nameInput.addEventListener("input", function () {
+                    newButton.textContent = nameInput.value;
+                });
+            });
+        </script>
+
+        <br>
+        窗口标题&nbsp;&nbsp;
+        <input type="text" id="textInput" oninput="updateP(this.value)">
+        <br>
+        <span style="font-size:11px">输入后标题栏文字会同步更新</span>
+        <script>
+            function updateP(v) {
+                document.getElementById("title_text").textContent = v || "Image Viewer";
+                document.getElementById("os9-app-menu").textContent = v || "Image Viewer";
+            }
+        </script>
+
+        <br><br>
+        <div id="ctrls">
+            图片透明度&nbsp;&nbsp;
+            <label><input type="range" id="slider" min="0" max="1" step="0.01" value="1"></label>
+            <label><input type="number" id="input_num" min="0" max="1" step="0.01" value="1"></label>
+        </div>
+        <script>
+            var target = document.getElementById("img-avatar");
+            var slider = document.getElementById("slider");
+            var input = document.getElementById("input_num");
+            slider.addEventListener("input", function () {
+                target.style.opacity = slider.value;
+                input.value = slider.value;
+            });
+            input.addEventListener("input", function () {
+                target.style.opacity = input.value;
+                slider.value = input.value;
+            });
+        </script>
+
+        <br>
+        <div id="vhs-panel-host"></div>
+        <script>
+            if (window.HeiseiVHS) {
+                window.HeiseiVHS.mount({
+                    imgEl: document.getElementById("img-avatar"),
+                    previewHost: document.getElementById("preview-host"),
+                    panelHost: document.getElementById("vhs-panel-host"),
+                    theme: "classic"
+                });
+            }
+        </script>
+
+        <br>
+        <button type="button" id="exportButton">导出对话框为图片</button>
+        <script>
+            document.getElementById("exportButton").addEventListener("click", function () {
+                var element = document.getElementById("jw_os9");
+                html2canvas(element, {
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: null,
+                    scale: 2
+                }).then(function (canvas) {
+                    var link = document.createElement("a");
+                    link.href = canvas.toDataURL("image/png");
+                    link.download = "macos9-exported.png";
+                    link.click();
+                }).catch(function (err) {
+                    console.error(err);
+                    alert("导出失败，请确认图片可同源访问后再试。");
+                });
+            });
+        </script>
+
+        <div class="os9-links">
+            <a href="../Classic/index.html">JW Classic</a> ·
+            <a href="../Aero/index.html">JW Aero</a> ·
+            <a href="../MacOSX/index.html">JW Mac OS X</a> ·
+            <a href="../index.html">首页</a>
+        </div>
+    </div>
+
+    <aside class="os9-control-strip" id="os9-cs">
+        <button type="button" class="os9-cs-toggle" id="os9-cs-toggle" title="折叠 Control Strip">‖</button>
+        <div class="os9-cs-body">
+            <div class="os9-cs-item">
+                <span>音量</span>
+                <input type="range" id="cs-volume" min="0" max="100" value="70">
+            </div>
+            <div class="os9-cs-item">
+                <span>分辨率</span>
+                <select id="cs-res">
+                    <option>800×600</option>
+                    <option selected>1024×768</option>
+                    <option>1152×870</option>
+                    <option>1280×1024</option>
+                </select>
+            </div>
+            <div class="os9-cs-item">
+                <span>共享</span>
+                <label><input type="checkbox" id="cs-share"> File Sharing</label>
+            </div>
+        </div>
+    </aside>
+
+    <script>
+        (function () {
+            function tick() {
+                var d = new Date();
+                var h = d.getHours();
+                var m = d.getMinutes();
+                var ap = h >= 12 ? "PM" : "AM";
+                h = h % 12;
+                if (h === 0) h = 12;
+                document.getElementById("os9-clock").textContent =
+                    h + ":" + (m < 10 ? "0" : "") + m + " " + ap;
+            }
+            tick();
+            setInterval(tick, 15000);
+
+            var win = document.getElementById("jw_os9");
+            document.getElementById("os9-collapse").addEventListener("click", function (e) {
+                e.stopPropagation();
+                win.classList.toggle("shaded");
+            });
+            document.getElementById("os9-titlebar").addEventListener("dblclick", function () {
+                win.classList.toggle("shaded");
+            });
+            document.getElementById("os9-zoom").addEventListener("click", function (e) {
+                e.stopPropagation();
+                if (win.style.width === "92%") {
+                    win.style.width = "";
+                    win.style.maxWidth = "";
+                } else {
+                    win.style.width = "92%";
+                    win.style.maxWidth = "920px";
+                }
+            });
+            document.getElementById("os9-close").addEventListener("click", function (e) {
+                e.stopPropagation();
+                win.style.visibility = win.style.visibility === "hidden" ? "" : "hidden";
+            });
+
+            document.getElementById("os9-cs-toggle").addEventListener("click", function () {
+                document.getElementById("os9-cs").classList.toggle("collapsed");
+            });
+        })();
+    </script>
+</body>
+</html>

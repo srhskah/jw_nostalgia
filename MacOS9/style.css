@@ -1,0 +1,410 @@
+/* Mac OS 9 Platinum — CSS variables isolate theme */
+:root {
+    --os9-desktop: #808080;
+    --os9-platinum: #dddddd;
+    --os9-light: #f5f5f5;
+    --os9-mid: #c5c5c5;
+    --os9-dark: #858585;
+    --os9-darker: #555555;
+    --os9-stripe: #a0a0a0;
+    --os9-ink: #000000;
+    --os9-accent: #3a62ab;
+    --os9-font: "Charcoal", "Geneva", "Lucida Grande", "Segoe UI", sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body.os9-desktop {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--os9-font);
+    font-size: 12px;
+    color: var(--os9-ink);
+    background-color: var(--os9-desktop);
+    background-image:
+        linear-gradient(45deg, rgba(255,255,255,0.06) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.06) 75%, transparent 75%);
+    background-size: 4px 4px;
+}
+
+/* —— Menu bar —— */
+.os9-menubar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 6px;
+    background: linear-gradient(to bottom, #ffffff 0%, #dddddd 45%, #bbbbbb 100%);
+    border-bottom: 1px solid #000;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.os9-apple {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 14px;
+    margin-right: 10px;
+    font-size: 14px;
+    line-height: 1;
+    color: #222;
+    cursor: default;
+    background: linear-gradient(
+        to bottom,
+        #5bc2f0 0 16%,
+        #7ac943 16% 33%,
+        #f5d547 33% 50%,
+        #f0a12e 50% 66%,
+        #e85d4c 66% 83%,
+        #c77dd4 83% 100%
+    );
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25);
+}
+
+.os9-apple::before {
+    content: "";
+    color: #111;
+    font-size: 12px;
+    text-shadow: 0 0 1px #fff;
+}
+
+.os9-menubar nav {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+}
+
+.os9-menubar nav span {
+    cursor: default;
+    padding: 0 2px;
+}
+
+.os9-menubar nav span:hover {
+    background: var(--os9-accent);
+    color: #fff;
+}
+
+.os9-menubar-right {
+    margin-left: auto;
+    font-weight: normal;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* —— Desktop icons —— */
+.os9-desktop-icons {
+    position: absolute;
+    top: 28px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 1;
+}
+
+.os9-icon {
+    width: 64px;
+    text-align: center;
+    font-size: 11px;
+    cursor: default;
+    user-select: none;
+}
+
+.os9-icon-img {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 4px;
+    border: 1px solid var(--os9-darker);
+    border-radius: 2px;
+}
+
+.os9-icon-img.hd {
+    background: linear-gradient(135deg, #c5dff0, #4f8ecf);
+}
+
+.os9-icon-img.folder {
+    background: linear-gradient(135deg, #f4d77b, #d4a017);
+}
+
+.os9-icon-img.trash {
+    background: linear-gradient(135deg, #eee, #999);
+    border-radius: 4px 4px 2px 2px;
+}
+
+.os9-icon-label {
+    display: inline-block;
+    padding: 1px 4px;
+    background: transparent;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.os9-icon:hover .os9-icon-label {
+    background: var(--os9-accent);
+    text-shadow: none;
+}
+
+/* —— Window —— */
+.satu, .dua {
+    width: 100%;
+    text-align: center;
+    position: relative;
+}
+
+#jw_os9 {
+    --os9-win-bg: var(--os9-platinum);
+    background: var(--os9-win-bg);
+    width: 28%;
+    min-width: 220px;
+    max-width: 520px;
+    margin: 36px auto 12px;
+    border: 1px solid #000;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+    position: relative;
+    z-index: 2;
+    text-align: left;
+}
+
+#jw_os9.shaded .os9-window-body {
+    display: none;
+}
+
+.os9-titlebar {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    gap: 6px;
+    background: repeating-linear-gradient(
+        to bottom,
+        var(--os9-light) 0 1px,
+        var(--os9-platinum) 1px 2px,
+        var(--os9-stripe) 2px 3px,
+        var(--os9-platinum) 3px 4px
+    );
+    border-bottom: 1px solid var(--os9-darker);
+    border-radius: 3px 3px 0 0;
+    cursor: default;
+    user-select: none;
+}
+
+.os9-box {
+    width: 13px;
+    height: 13px;
+    flex: 0 0 13px;
+    background: linear-gradient(135deg, var(--os9-light), var(--os9-dark));
+    border: 1px solid var(--os9-darker);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+}
+
+.os9-box.close::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border: 1px solid var(--os9-darker);
+}
+
+.os9-box.collapse::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    top: 5px;
+    border-top: 2px solid var(--os9-darker);
+}
+
+.os9-box.zoom::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--os9-darker);
+}
+
+.os9-title-text {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    font-size: 12px;
+    background: var(--os9-platinum);
+    padding: 0 8px;
+    margin: 0 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.os9-titlebar-right {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.os9-window-body {
+    background: var(--os9-light);
+    border-top: 1px solid var(--os9-mid);
+}
+
+#preview-host {
+    text-align: center;
+    padding: 10px;
+    position: relative;
+    min-height: 40px;
+}
+
+#img-avatar {
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+#box {
+    text-align: center;
+    padding: 4px 6px 8px;
+    color: var(--os9-ink);
+}
+
+#chooseImage {
+    display: none;
+}
+
+/* Platinum buttons */
+button,
+.file-input-trigger {
+    appearance: none;
+    -webkit-appearance: none;
+    font-family: var(--os9-font);
+    font-size: 12px;
+    padding: 3px 14px;
+    min-width: 56px;
+    color: var(--os9-ink);
+    cursor: pointer;
+    background: linear-gradient(to bottom, var(--os9-light), var(--os9-mid));
+    border: 1px solid var(--os9-darker);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    outline: none;
+}
+
+button:active,
+.file-input-trigger:active {
+    background: linear-gradient(to bottom, var(--os9-mid), var(--os9-light));
+}
+
+.dua {
+    padding-bottom: 56px;
+}
+
+#buttonTable {
+    margin: 0 auto;
+    background: var(--os9-platinum);
+    border: 1px solid var(--os9-darker);
+    width: 20em;
+    max-width: 95%;
+    text-align: center;
+    font-size: 12px;
+}
+
+/* —— Control Strip —— */
+.os9-control-strip {
+    position: fixed;
+    left: 8px;
+    bottom: 8px;
+    z-index: 40;
+    display: flex;
+    align-items: stretch;
+    max-width: calc(100vw - 16px);
+}
+
+.os9-cs-toggle {
+    width: 16px;
+    background: linear-gradient(to bottom, var(--os9-light), var(--os9-mid));
+    border: 1px solid #000;
+    border-radius: 3px 0 0 3px;
+    cursor: pointer;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 10px;
+    padding: 4px 0;
+    color: var(--os9-ink);
+}
+
+.os9-cs-body {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    background: linear-gradient(to bottom, #eeeeee, #cccccc);
+    border: 1px solid #000;
+    border-left: none;
+    border-radius: 0 3px 3px 0;
+    overflow-x: auto;
+}
+
+.os9-control-strip.collapsed .os9-cs-body {
+    display: none;
+}
+
+.os9-cs-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.os9-cs-item input[type="range"] {
+    width: 72px;
+}
+
+.os9-cs-item select {
+    font-size: 10px;
+    font-family: var(--os9-font);
+}
+
+/* VHS panel inherits page buttons */
+.vhs-panel {
+    margin: 0.5em auto;
+    max-width: 28em;
+    text-align: left;
+    font-size: 12px;
+}
+.vhs-enable-row { text-align: center; margin-bottom: 0.4em; }
+.vhs-panel-body {
+    display: none;
+    background: var(--os9-platinum);
+    border: 1px solid var(--os9-darker);
+    padding: 0.5em 0.6em;
+    max-height: 22em;
+    overflow-y: auto;
+}
+.vhs-panel-on .vhs-panel-body { display: block; }
+.vhs-hint { font-size: 11px; margin-bottom: 0.4em; color: #333; }
+.vhs-ctrl-row { display: flex; align-items: center; gap: 0.35em; margin: 0.25em 0; }
+.vhs-ctrl-name { flex: 0 0 7.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vhs-ctrl-row input[type="range"] { flex: 1 1 auto; min-width: 0; }
+.vhs-ctrl-row input[type="number"] { width: 4em; box-sizing: border-box; }
+.vhs-tools { margin-top: 0.5em; text-align: center; }
+.vhs-tools button { margin: 0.15em; }
+.vhs-tools label { display: inline-block; margin-right: 0.6em; }
+
+.os9-links {
+    margin: 12px 0;
+    font-size: 12px;
+}
+.os9-links a { color: #0000ee; }
+
+@media (max-width: 640px) {
+    #jw_os9 { width: 92%; }
+    .os9-desktop-icons { display: none; }
+    .os9-control-strip { left: 4px; right: 4px; }
+}

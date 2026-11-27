@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JW Mac OS X</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="../vhs/heisei-vhs.js"></script>
+</head>
+<body class="osx-desktop ver-jaguar">
+    <header class="osx-menubar">
+        <span class="osx-apple" title="Apple">🍎</span>
+        <nav>
+            <span>Finder</span>
+            <span>File</span>
+            <span>Edit</span>
+            <span>View</span>
+            <span>Window</span>
+            <span>Help</span>
+        </nav>
+        <div class="osx-menubar-right">
+            <span class="osx-spotlight" title="Spotlight" aria-hidden="true"></span>
+            <span id="osx-clock">--:--</span>
+        </div>
+    </header>
+
+    <div class="satu">
+        <div id="jw_osx">
+            <div class="osx-titlebar">
+                <div class="traffic" id="osx-traffic">
+                    <span class="close" id="osx-close" title="Close">×</span>
+                    <span class="min" id="osx-min" title="Minimize">−</span>
+                    <span class="zoom" id="osx-zoom" title="Zoom">+</span>
+                </div>
+                <div class="osx-title-text" id="title_text">Image Viewer</div>
+            </div>
+            <div id="preview-host">
+                <img id="img-avatar" alt="">
+            </div>
+            <div id="box"></div>
+        </div>
+    </div>
+
+    <div class="dua">
+        <div class="osx-version-bar" role="radiogroup" aria-label="Mac OS X 窗口样式版本">
+            <label><input type="radio" name="osx-ver" value="jaguar" checked> 10.2 Jaguar</label>
+            <label><input type="radio" name="osx-ver" value="tiger"> 10.4 Tiger</label>
+            <label><input type="radio" name="osx-ver" value="mavericks"> 10.9 Mavericks</label>
+        </div>
+
+        <br>
+        <div style="text-align:center;">
+            <input id="chooseImage" type="file" name="file" accept="image/*">
+            <button type="button" class="file-input-trigger">选择图片</button>
+            &nbsp;
+            <button type="button" id="addButton">增加按钮</button>
+        </div>
+        <script>
+            $("#chooseImage").on("change", function () {
+                var file = this.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#img-avatar").attr("src", e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+            $(".file-input-trigger").on("click", function () {
+                $("#chooseImage").trigger("click");
+            });
+        </script>
+
+        <br>
+        <table id="buttonTable">
+            <thead><tr><th>按钮名称</th><th>操作</th></tr></thead>
+            <tbody></tbody>
+        </table>
+        <script>
+            document.getElementById("addButton").addEventListener("click", function () {
+                var newRow = document.createElement("tr");
+                var nameCell = document.createElement("td");
+                var nameInput = document.createElement("input");
+                nameInput.type = "text";
+                nameInput.value = "新按钮";
+                nameCell.appendChild(nameInput);
+
+                var actionCell = document.createElement("td");
+                var deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.textContent = "删除";
+
+                var newButton = document.createElement("button");
+                newButton.type = "button";
+                newButton.textContent = nameInput.value;
+                newButton.style.margin = "4px";
+                document.getElementById("box").appendChild(newButton);
+
+                deleteButton.addEventListener("click", function () {
+                    newRow.remove();
+                    newButton.remove();
+                });
+                actionCell.appendChild(deleteButton);
+                newRow.appendChild(nameCell);
+                newRow.appendChild(actionCell);
+                document.querySelector("#buttonTable tbody").appendChild(newRow);
+
+                nameInput.addEventListener("input", function () {
+                    newButton.textContent = nameInput.value;
+                });
+            });
+        </script>
+
+        <br>
+        窗口标题&nbsp;&nbsp;
+        <input type="text" id="textInput" oninput="updateP(this.value)">
+        <br>
+        <span style="font-size:11px;color:#dff">输入后标题栏文字会同步更新</span>
+        <script>
+            function updateP(v) {
+                document.getElementById("title_text").textContent = v || "Image Viewer";
+            }
+        </script>
+
+        <br><br>
+        <div id="ctrls" style="color:#eef">
+            图片透明度&nbsp;&nbsp;
+            <label><input type="range" id="slider" min="0" max="1" step="0.01" value="1"></label>
+            <label><input type="number" id="input_num" min="0" max="1" step="0.01" value="1"></label>
+        </div>
+        <script>
+            var target = document.getElementById("img-avatar");
+            var slider = document.getElementById("slider");
+            var input = document.getElementById("input_num");
+            slider.addEventListener("input", function () {
+                target.style.opacity = slider.value;
+                input.value = slider.value;
+            });
+            input.addEventListener("input", function () {
+                target.style.opacity = input.value;
+                slider.value = input.value;
+            });
+        </script>
+
+        <br>
+        <div id="vhs-panel-host"></div>
+        <script>
+            if (window.HeiseiVHS) {
+                window.HeiseiVHS.mount({
+                    imgEl: document.getElementById("img-avatar"),
+                    previewHost: document.getElementById("preview-host"),
+                    panelHost: document.getElementById("vhs-panel-host"),
+                    theme: "aero"
+                });
+            }
+        </script>
+
+        <br>
+        <button type="button" id="exportButton">导出对话框为图片</button>
+        <script>
+            document.getElementById("exportButton").addEventListener("click", function () {
+                var element = document.getElementById("jw_osx");
+                html2canvas(element, {
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: null,
+                    scale: 2
+                }).then(function (canvas) {
+                    var link = document.createElement("a");
+                    link.href = canvas.toDataURL("image/png");
+                    link.download = "macosx-exported.png";
+                    link.click();
+                }).catch(function (err) {
+                    console.error(err);
+                    alert("导出失败，请确认图片可同源访问后再试。");
+                });
+            });
+        </script>
+
+        <div class="osx-links">
+            <a href="../MacOS9/index.html">JW Mac OS 9</a> ·
+            <a href="../Aero/index.html">JW Aero</a> ·
+            <a href="../Classic/index.html">JW Classic</a> ·
+            <a href="../index.html">首页</a>
+        </div>
+    </div>
+
+    <div class="osx-dock-wrap">
+        <div class="osx-dock" aria-label="Dock">
+            <div class="osx-dock-item finder" title="Finder"></div>
+            <div class="osx-dock-item preview" title="Preview"></div>
+            <div class="osx-dock-sep" aria-hidden="true"></div>
+            <div class="osx-dock-item trash" title="Trash"></div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            function tick() {
+                var d = new Date();
+                var h = d.getHours();
+                var m = d.getMinutes();
+                document.getElementById("osx-clock").textContent =
+                    (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+            }
+            tick();
+            setInterval(tick, 15000);
+
+            var body = document.body;
+            var radios = document.querySelectorAll('input[name="osx-ver"]');
+            for (var i = 0; i < radios.length; i++) {
+                radios[i].addEventListener("change", function () {
+                    body.classList.remove("ver-jaguar", "ver-tiger", "ver-mavericks");
+                    body.classList.add("ver-" + this.value);
+                });
+            }
+
+            var win = document.getElementById("jw_osx");
+            document.getElementById("osx-close").addEventListener("click", function () {
+                win.style.visibility = win.style.visibility === "hidden" ? "" : "hidden";
+            });
+            document.getElementById("osx-min").addEventListener("click", function () {
+                win.classList.toggle("inactive");
+            });
+            document.getElementById("osx-zoom").addEventListener("click", function () {
+                if (win.style.width === "92%") {
+                    win.style.width = "";
+                    win.style.maxWidth = "";
+                } else {
+                    win.style.width = "92%";
+                    win.style.maxWidth = "920px";
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
