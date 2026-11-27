@@ -162,17 +162,54 @@
         <script>
             document.getElementById("exportButton").addEventListener("click", function () {
                 var element = document.getElementById("jw_osx");
+                var titlebar = element.querySelector(".osx-titlebar");
+                var preview = document.getElementById("preview-host");
+                var isJaguar = document.body.classList.contains("ver-jaguar");
+                var backups = [];
+
+                // Jaguar 条纹：导出前把 SVG 贴图写进 inline，避免 html2canvas 丢掉 stylesheet 背景
+                function bakeJaguarStripes() {
+                    if (!isJaguar) return function () {};
+                    var titlePat = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='2' fill='%23d2e1f5'/%3E%3Crect y='2' width='4' height='2' fill='%23b4cdeb'/%3E%3C/svg%3E\")";
+                    var bodyPat = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='2' fill='%23ffffff'/%3E%3Crect y='2' width='4' height='2' fill='%23f2f6fb'/%3E%3C/svg%3E\")";
+                    [titlebar, element, preview].forEach(function (el, idx) {
+                        if (!el) return;
+                        backups.push({
+                            el: el,
+                            background: el.style.background,
+                            backgroundImage: el.style.backgroundImage,
+                            backgroundRepeat: el.style.backgroundRepeat,
+                            backgroundColor: el.style.backgroundColor
+                        });
+                        el.style.backgroundImage = idx === 0 ? titlePat : bodyPat;
+                        el.style.backgroundRepeat = "repeat";
+                        el.style.backgroundColor = idx === 0 ? "#c8dcf0" : "#ffffff";
+                    });
+                    return function restore() {
+                        backups.forEach(function (b) {
+                            b.el.style.background = b.background;
+                            b.el.style.backgroundImage = b.backgroundImage;
+                            b.el.style.backgroundRepeat = b.backgroundRepeat;
+                            b.el.style.backgroundColor = b.backgroundColor;
+                        });
+                    };
+                }
+
+                var restore = bakeJaguarStripes();
+                element.offsetHeight;
                 html2canvas(element, {
                     useCORS: true,
                     allowTaint: false,
                     backgroundColor: null,
                     scale: 2
                 }).then(function (canvas) {
+                    if (restore) restore();
                     var link = document.createElement("a");
                     link.href = canvas.toDataURL("image/png");
                     link.download = "macosx-exported.png";
                     link.click();
                 }).catch(function (err) {
+                    if (restore) restore();
                     console.error(err);
                     alert("导出失败，请确认图片可同源访问后再试。");
                 });

@@ -29,22 +29,29 @@ body.osx-desktop {
 }
 
 /* —— Version themes —— */
+/* Jaguar 条纹改用 SVG data URI：html2canvas 对 repeating-linear-gradient 支持很差 */
 body.ver-jaguar {
     --osx-menubar-bg: rgba(230, 240, 255, 0.78);
-    --osx-title-bg: repeating-linear-gradient(
-        to bottom,
-        rgba(210, 225, 245, 0.95) 0 2px,
-        rgba(180, 205, 235, 0.9) 2px 4px
-    );
-    --osx-content-bg: repeating-linear-gradient(
-        to bottom,
-        #ffffff 0 2px,
-        #f2f6fb 2px 4px
-    );
+    --osx-title-bg: #c8dcf0;
+    --osx-content-bg: #ffffff;
     --osx-win-radius: 8px;
     --osx-shadow: 0 12px 30px rgba(0, 40, 90, 0.45);
     --osx-dock-bg: rgba(255, 255, 255, 0.62);
     --osx-dock-radius: 16px;
+}
+
+/* 直接绑到元素，避免仅靠 CSS 变量 + repeating-gradient 导致导出丢条纹 */
+body.ver-jaguar .osx-titlebar {
+    background-color: #c8dcf0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='2' fill='%23d2e1f5'/%3E%3Crect y='2' width='4' height='2' fill='%23b4cdeb'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+}
+
+body.ver-jaguar #jw_osx,
+body.ver-jaguar #preview-host {
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='2' fill='%23ffffff'/%3E%3Crect y='2' width='4' height='2' fill='%23f2f6fb'/%3E%3C/svg%3E");
+    background-repeat: repeat;
 }
 
 body.ver-tiger {
