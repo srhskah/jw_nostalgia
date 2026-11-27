@@ -571,10 +571,10 @@
                     cap.style.height = '22px';
                     cap.style.borderRadius = '50%';
                     cap.style.border = '3px solid #ffffff';
-                    cap.style.padding = '0';
+                    cap.style.padding = '0 0 2px 0';
                     cap.style.margin = '0 2px';
                     cap.style.lineHeight = '1';
-                    cap.style.fontSize = '14px';
+                    cap.style.fontSize = '13px';
                     cap.style.fontFamily = 'Arial, Helvetica, sans-serif';
                     cap.style.color = '#ffffff';
                 }
@@ -595,22 +595,31 @@
                     avatar.style.display = 'block';
                 }
 
-                var newBtns = root.querySelectorAll('.new_btn');
+                var newBtns = root.querySelectorAll('#box button, #box .new_btn, .new_btn');
                 for (var n = 0; n < newBtns.length; n++) {
                     var nb = newBtns[n];
                     backup(nb);
                     nb.style.appearance = 'none';
                     nb.style.webkitAppearance = 'none';
                     nb.style.boxSizing = 'border-box';
-                    nb.style.padding = '2px 8px';
+                    nb.style.display = 'inline-flex';
+                    nb.style.alignItems = 'center';
+                    nb.style.justifyContent = 'center';
+                    nb.style.textAlign = 'center';
+                    /* html2canvas 易把文字偏下，底边多垫 + 微上移 */
+                    nb.style.padding = '1px 10px 5px';
+                    nb.style.minHeight = '26px';
+                    nb.style.height = 'auto';
                     nb.style.border = '3px solid #ffffff';
                     nb.style.borderRadius = '8px';
                     nb.style.fontSize = '13px';
-                    nb.style.lineHeight = '18px';
+                    nb.style.lineHeight = '1';
                     nb.style.fontFamily = "'Segoe UI', 'HarmonyOS Sans SC', sans-serif";
                     nb.style.background = 'linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(225,225,225,1) 49%, rgba(235,235,235,1) 51%, rgba(255,255,255,1) 100%)';
                     nb.style.color = '#000000';
                     nb.style.margin = '5px';
+                    nb.style.position = 'relative';
+                    nb.style.top = '-1px';
                 }
 
                 return function restoreExportChrome() {

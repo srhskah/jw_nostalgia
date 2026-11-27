@@ -95,12 +95,12 @@
     align-items: center;
     justify-content: center;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1;
-    padding: 0;
+    /* 字形视觉中心偏下：略垫底把 -/+/× 抬到圆点正中 */
+    padding: 0 0 2px 0;
     color: white;
     border: 3px solid white;
-    /* box-shadow: 0.1em 0.1em 0.1em 0px rgb(0, 0, 0); */
 }
 
 #box{
@@ -125,20 +125,28 @@
 } */
 
 
-button {
+button,
+.file-input-trigger,
+#box button,
+#box .new_btn,
+.new_btn {
     /* 去掉系统原生按钮外观，否则远端 html2canvas 常丢掉自定义白边/圆角渐变 */
     appearance: none;
     -webkit-appearance: none;
     box-sizing: border-box;
-    padding: 2px 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    /* 水平对称；底边多垫一点把字形/emoji 光学抬到正中 */
+    padding: 0 10px 3px;
+    min-height: 24px;
     border-radius: 8px;
     border: 3px solid white;
-    /* background: linear-gradient(0deg, rgba(217,240,252,1) 0%, rgba(167,217,245,1) 49%, rgba(188,229,252,1) 51%,  rgba(234,246,253,1) 100%); */
     background: linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(225,225,225,1) 49%, rgba(235,235,235,1) 51%,  rgba(255,255,255,1) 100%);
-    /* background-color: #cdcdcd; */
     font-family: 'Segoe UI', 'HarmonyOS Sans SC', sans-serif;
     font-size: 13px;
-    line-height: 18px;
+    line-height: 1;
     outline: none;
     color: #000;
     cursor: pointer;

@@ -54,17 +54,19 @@
     margin: 1px 1px 0 0;
 }
 
-/* 标题栏右侧固定关闭钮：高对比分边框，不依赖 inset shadow（远端导出更稳） */
+/* 标题栏右侧固定关闭钮：高对比分边框；× 在钮面内光学居中 */
 .btn div{
     box-sizing: border-box;
     width: 16px;
     height: 14px;
     background: #c0c0c0;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
-    line-height: 10px;
+    line-height: 1;
     color: black;
     border-style: solid;
     border-width: 2px;
@@ -73,6 +75,7 @@
     border-right-color: #000000;
     border-bottom-color: #000000;
     box-shadow: none;
+    padding: 0 0 1px 0;
 }
 
 #box{
@@ -90,8 +93,14 @@ button,
     /* 去掉系统原生按钮外观，否则远端 html2canvas 常丢掉自定义浮雕边框 */
     appearance: none;
     -webkit-appearance: none;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-family: Unifont, DotGothic16;
-    padding: 2px 5px;
+    font-size: 13px;
+    line-height: 1;
+    padding: 3px 6px 4px;
     border-style: solid;
     border-width: 2px;
     border-top-color: #ffffff;

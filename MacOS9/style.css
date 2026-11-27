@@ -308,27 +308,60 @@ body.os9-desktop {
     display: none;
 }
 
-/* Platinum buttons */
+/* Platinum push button：浅灰面 + 黑描边 + 左上亮/右下暗浮雕（对齐 OS 8/9 HIG） */
 button,
 .file-input-trigger {
     appearance: none;
     -webkit-appearance: none;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     font-family: var(--os9-font);
     font-size: 12px;
-    padding: 3px 14px;
-    min-width: 56px;
+    font-weight: normal;
+    line-height: 1;
+    padding: 0 14px 2px;
+    min-width: 58px;
+    min-height: 20px;
     color: var(--os9-ink);
     cursor: pointer;
-    background: linear-gradient(to bottom, var(--os9-light), var(--os9-mid));
-    border: 1px solid var(--os9-darker);
-    border-radius: 8px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    background-color: #dddddd;
+    background-image: none;
+    border: 1px solid #000000;
+    border-radius: 3px;
+    box-shadow:
+        inset 1px 1px 0 #ffffff,
+        inset -1px -1px 0 #666666;
     outline: none;
 }
 
 button:active,
 .file-input-trigger:active {
-    background: linear-gradient(to bottom, var(--os9-mid), var(--os9-light));
+    background-color: #c8c8c8;
+    box-shadow:
+        inset 1px 1px 0 #555555,
+        inset -1px -1px 0 #eeeeee;
+}
+
+/* 窗口内自定义按钮：与页面 Platinum 控件同款 chrome */
+#box button,
+#box .new_btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1;
+    padding: 0 14px 2px;
+    min-height: 20px;
+    background-color: #dddddd;
+    background-image: none;
+    border: 1px solid #000000;
+    border-radius: 3px;
+    box-shadow:
+        inset 1px 1px 0 #ffffff,
+        inset -1px -1px 0 #666666;
 }
 
 .dua {

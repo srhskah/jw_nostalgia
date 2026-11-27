@@ -114,7 +114,7 @@
         </script>
 
         <br>
-        窗口标题&nbsp;&nbsp;
+        <span style="color: #dff;">窗口标题&nbsp;&nbsp;</span>
         <input type="text" id="textInput" oninput="updateP(this.value)">
         <br>
         <span style="font-size:11px;color:#dff">输入后标题栏文字会同步更新</span>
@@ -125,7 +125,7 @@
         </script>
 
         <br><br>
-        <div id="ctrls" style="color:#eef">
+        <div id="ctrls" style="color:#dff">
             图片透明度&nbsp;&nbsp;
             <label><input type="range" id="slider" min="0" max="1" step="0.01" value="1"></label>
             <label><input type="number" id="input_num" min="0" max="1" step="0.01" value="1"></label>
@@ -165,37 +165,175 @@
                 var titlebar = element.querySelector(".osx-titlebar");
                 var preview = document.getElementById("preview-host");
                 var isJaguar = document.body.classList.contains("ver-jaguar");
+                var isMavericks = document.body.classList.contains("ver-mavericks");
                 var backups = [];
+
+                function pushBgBackup(el) {
+                    if (!el) return;
+                    backups.push({ el: el, cssText: el.style.cssText });
+                }
+
+                function restoreAll() {
+                    backups.forEach(function (b) {
+                        b.el.style.cssText = b.cssText;
+                    });
+                }
 
                 // Jaguar 条纹：导出前把 SVG 贴图写进 inline，避免 html2canvas 丢掉 stylesheet 背景
                 function bakeJaguarStripes() {
-                    if (!isJaguar) return function () {};
+                    if (!isJaguar) return;
                     var titlePat = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='2' fill='%23d2e1f5'/%3E%3Crect y='2' width='4' height='2' fill='%23b4cdeb'/%3E%3C/svg%3E\")";
                     var bodyPat = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='2' fill='%23ffffff'/%3E%3Crect y='2' width='4' height='2' fill='%23f2f6fb'/%3E%3C/svg%3E\")";
                     [titlebar, element, preview].forEach(function (el, idx) {
                         if (!el) return;
-                        backups.push({
-                            el: el,
-                            background: el.style.background,
-                            backgroundImage: el.style.backgroundImage,
-                            backgroundRepeat: el.style.backgroundRepeat,
-                            backgroundColor: el.style.backgroundColor
-                        });
+                        pushBgBackup(el);
                         el.style.backgroundImage = idx === 0 ? titlePat : bodyPat;
                         el.style.backgroundRepeat = "repeat";
                         el.style.backgroundColor = idx === 0 ? "#c8dcf0" : "#ffffff";
                     });
-                    return function restore() {
-                        backups.forEach(function (b) {
-                            b.el.style.background = b.background;
-                            b.el.style.backgroundImage = b.backgroundImage;
-                            b.el.style.backgroundRepeat = b.backgroundRepeat;
-                            b.el.style.backgroundColor = b.backgroundColor;
-                        });
-                    };
                 }
 
-                var restore = bakeJaguarStripes();
+                // 红绿灯：html2canvas 对 radial-gradient 会洗淡，导出前烘焙成 PNG
+                function bakeTrafficLights() {
+                    var specs = [
+                        { sel: ".traffic .close", hi: "#ff8a7a", lo: "#e0443e" },
+                        { sel: ".traffic .min", hi: "#ffd76a", lo: "#dea123" },
+                        { sel: ".traffic .zoom", hi: "#8adf6a", lo: "#3fad2e" }
+                    ];
+                    var size = 48;
+
+                    function paintBtn(hi, lo) {
+                        var c = document.createElement("canvas");
+                        c.width = size;
+                        c.height = size;
+                        var ctx = c.getContext("2d");
+                        var cx = size / 2;
+                        var cy = size / 2;
+                        var r = size / 2;
+                        var g = ctx.createRadialGradient(size * 0.3, size * 0.3, 0, cx, cy, r * 0.95);
+                        g.addColorStop(0, hi);
+                        g.addColorStop(1, lo);
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                        ctx.closePath();
+                        ctx.fillStyle = g;
+                        ctx.fill();
+                        // 对齐网页 inset 高光（Mavericks 页面无 box-shadow，略弱）
+                        if (!isMavericks) {
+                            var gloss = ctx.createLinearGradient(0, 0, 0, size * 0.5);
+                            gloss.addColorStop(0, "rgba(255,255,255,0.55)");
+                            gloss.addColorStop(1, "rgba(255,255,255,0)");
+                            ctx.beginPath();
+                            ctx.ellipse(cx, size * 0.32, size * 0.38, size * 0.22, 0, 0, Math.PI * 2);
+                            ctx.fillStyle = gloss;
+                            ctx.fill();
+                        }
+                        return c.toDataURL("image/png");
+                    }
+
+                    specs.forEach(function (s) {
+                        var el = element.querySelector(s.sel);
+                        if (!el) return;
+                        pushBgBackup(el);
+                        el.style.background = "none";
+                        el.style.backgroundImage = "url(" + paintBtn(s.hi, s.lo) + ")";
+                        el.style.backgroundSize = "100% 100%";
+                        el.style.backgroundRepeat = "no-repeat";
+                        el.style.backgroundColor = s.lo;
+                        el.style.boxShadow = "none";
+                    });
+                }
+
+                // 标题字：html2canvas 易裁顶，只动标题本身（不动整窗 overflow，否则阴影会采成底边横纹）
+                function bakeTitleText() {
+                    var titleText = element.querySelector(".osx-title-text");
+                    if (!titleText) return;
+                    pushBgBackup(titleText);
+                    titleText.style.overflow = "visible";
+                    titleText.style.lineHeight = "1.35";
+                    titleText.style.paddingTop = "1px";
+                    titleText.style.paddingBottom = "1px";
+                }
+
+                // 10.4/10.9：大模糊 box-shadow 在 html2canvas 里易成底部横纹条带
+                function bakeWindowShadow() {
+                    if (isJaguar) return;
+                    pushBgBackup(element);
+                    element.style.overflow = "hidden";
+                    if (isMavericks) {
+                        element.style.boxShadow = "0 6px 14px rgba(0,0,0,0.28)";
+                    } else {
+                        element.style.boxShadow = "0 5px 12px rgba(0,0,0,0.32)";
+                    }
+                }
+
+                // Aqua 底部按钮：烘焙渐变 + 文字居中，避免洗淡/偏下
+                function bakeAquaButtons() {
+                    var btns = element.querySelectorAll("#box button, #box .new_btn");
+                    if (!btns.length) return;
+
+                    function paintCapsule(stops, w, h) {
+                        var c = document.createElement("canvas");
+                        c.width = w;
+                        c.height = h;
+                        var ctx = c.getContext("2d");
+                        var r = isMavericks ? 4 : h / 2;
+                        ctx.beginPath();
+                        if (ctx.roundRect) {
+                            ctx.roundRect(0, 0, w, h, r);
+                        } else {
+                            ctx.rect(0, 0, w, h);
+                        }
+                        ctx.closePath();
+                        var g = ctx.createLinearGradient(0, 0, 0, h);
+                        stops.forEach(function (s) { g.addColorStop(s[0], s[1]); });
+                        ctx.fillStyle = g;
+                        ctx.fill();
+                        return c.toDataURL("image/png");
+                    }
+
+                    var stops;
+                    if (isJaguar) {
+                        stops = [[0, "#d9ebff"], [0.42, "#8ec0f0"], [0.52, "#4f8fd8"], [1, "#7eb4ea"]];
+                    } else if (isMavericks) {
+                        stops = [[0, "#ffffff"], [1, "#e8e8e8"]];
+                    } else {
+                        stops = [[0, "#ffffff"], [0.45, "#efefef"], [0.55, "#cfcfcf"], [1, "#e8e8e8"]];
+                    }
+
+                    btns.forEach(function (nb) {
+                        pushBgBackup(nb);
+                        var w = Math.max(64, Math.ceil(nb.offsetWidth) || 64);
+                        var h = Math.max(22, Math.ceil(nb.offsetHeight) || 22);
+                        nb.style.appearance = "none";
+                        nb.style.webkitAppearance = "none";
+                        nb.style.boxSizing = "border-box";
+                        nb.style.display = "inline-flex";
+                        nb.style.alignItems = "center";
+                        nb.style.justifyContent = "center";
+                        nb.style.textAlign = "center";
+                        nb.style.lineHeight = "1";
+                        nb.style.padding = isMavericks ? "0 14px 1px" : "0 16px 1px";
+                        nb.style.minHeight = isMavericks ? "20px" : "22px";
+                        nb.style.minWidth = "64px";
+                        nb.style.borderRadius = isMavericks ? "4px" : "999px";
+                        nb.style.border = isJaguar ? "1px solid #3d6ea8" : (isMavericks ? "1px solid #a0a0a0" : "1px solid #6e6e6e");
+                        nb.style.background = "none";
+                        nb.style.backgroundImage = "url(" + paintCapsule(stops, w * 2, h * 2) + ")";
+                        nb.style.backgroundSize = "100% 100%";
+                        nb.style.backgroundRepeat = "no-repeat";
+                        nb.style.boxShadow = "none";
+                        nb.style.color = isJaguar ? "#0c2448" : "#222222";
+                        nb.style.fontSize = "13px";
+                        nb.style.fontWeight = "500";
+                    });
+                }
+
+                bakeJaguarStripes();
+                bakeTrafficLights();
+                bakeTitleText();
+                bakeWindowShadow();
+                bakeAquaButtons();
                 element.offsetHeight;
                 html2canvas(element, {
                     useCORS: true,
@@ -203,13 +341,13 @@
                     backgroundColor: null,
                     scale: 2
                 }).then(function (canvas) {
-                    if (restore) restore();
+                    restoreAll();
                     var link = document.createElement("a");
                     link.href = canvas.toDataURL("image/png");
                     link.download = "macosx-exported.png";
                     link.click();
                 }).catch(function (err) {
-                    if (restore) restore();
+                    restoreAll();
                     console.error(err);
                     alert("导出失败，请确认图片可同源访问后再试。");
                 });

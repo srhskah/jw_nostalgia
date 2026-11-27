@@ -167,17 +167,99 @@
         <script>
             document.getElementById("exportButton").addEventListener("click", function () {
                 var element = document.getElementById("jw_os9");
+                var backups = [];
+
+                function backup(el) {
+                    if (!el) return;
+                    backups.push({ el: el, cssText: el.style.cssText });
+                }
+                function restoreAll() {
+                    backups.forEach(function (b) {
+                        b.el.style.cssText = b.cssText;
+                    });
+                }
+
+                // Platinum 自定义按钮：chrome 烘焙成 PNG（对齐网页浮雕），文字光学居中
+                function paintPlatinumFace(w, h) {
+                    var c = document.createElement("canvas");
+                    c.width = w;
+                    c.height = h;
+                    var ctx = c.getContext("2d");
+                    function roundRect(x, y, rw, rh, rad) {
+                        var rr = Math.min(rad, rw / 2, rh / 2);
+                        ctx.beginPath();
+                        if (ctx.roundRect) ctx.roundRect(x, y, rw, rh, rr);
+                        else ctx.rect(x, y, rw, rh);
+                        ctx.closePath();
+                    }
+                    ctx.fillStyle = "#dddddd";
+                    roundRect(0, 0, w, h, 6);
+                    ctx.fill();
+                    ctx.strokeStyle = "#000000";
+                    ctx.lineWidth = 2;
+                    roundRect(1, 1, w - 2, h - 2, 5);
+                    ctx.stroke();
+                    ctx.strokeStyle = "#ffffff";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(4, h - 5);
+                    ctx.lineTo(4, 4);
+                    ctx.lineTo(w - 5, 4);
+                    ctx.stroke();
+                    ctx.strokeStyle = "#666666";
+                    ctx.beginPath();
+                    ctx.moveTo(w - 4, 5);
+                    ctx.lineTo(w - 4, h - 4);
+                    ctx.lineTo(5, h - 4);
+                    ctx.stroke();
+                    return c.toDataURL("image/png");
+                }
+
+                element.querySelectorAll("#box button, #box .new_btn").forEach(function (nb) {
+                    backup(nb);
+                    var w = Math.max(58, Math.ceil(nb.offsetWidth) || 58);
+                    var h = Math.max(20, Math.ceil(nb.offsetHeight) || 20);
+                    nb.style.appearance = "none";
+                    nb.style.webkitAppearance = "none";
+                    nb.style.boxSizing = "border-box";
+                    nb.style.display = "inline-flex";
+                    nb.style.alignItems = "center";
+                    nb.style.justifyContent = "center";
+                    nb.style.textAlign = "center";
+                    nb.style.fontFamily = '"Charcoal", "Geneva", "Lucida Grande", "Segoe UI", sans-serif';
+                    nb.style.fontSize = "12px";
+                    nb.style.lineHeight = "1";
+                    /* html2canvas 易偏下：底边多垫 + 微上移 */
+                    nb.style.padding = "1px 14px 5px";
+                    nb.style.minWidth = "58px";
+                    nb.style.minHeight = "22px";
+                    nb.style.height = "auto";
+                    nb.style.color = "#000000";
+                    nb.style.border = "none";
+                    nb.style.borderRadius = "3px";
+                    nb.style.boxShadow = "none";
+                    nb.style.background = "none";
+                    nb.style.backgroundImage = "url(" + paintPlatinumFace(w * 2, h * 2) + ")";
+                    nb.style.backgroundSize = "100% 100%";
+                    nb.style.backgroundRepeat = "no-repeat";
+                    nb.style.position = "relative";
+                    nb.style.top = "-1px";
+                });
+
+                element.offsetHeight;
                 html2canvas(element, {
                     useCORS: true,
                     allowTaint: false,
                     backgroundColor: null,
                     scale: 2
                 }).then(function (canvas) {
+                    restoreAll();
                     var link = document.createElement("a");
                     link.href = canvas.toDataURL("image/png");
                     link.download = "macos9-exported.png";
                     link.click();
                 }).catch(function (err) {
+                    restoreAll();
                     console.error(err);
                     alert("导出失败，请确认图片可同源访问后再试。");
                 });
