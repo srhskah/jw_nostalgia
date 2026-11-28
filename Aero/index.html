@@ -15,6 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvasize@1.0.0/dist/canvasize.min.js"></script>
     <script src="../vhs/jw-gif.js"></script>
+    <script src="../vhs/jw-export.js"></script>
     <script src="../vhs/heisei-vhs.js"></script>
     <style>
         body{
@@ -234,23 +235,12 @@
         <br>
         <div id="vhs-panel-host"></div>
         <script>
-            var vhsApi = null;
-            function syncDialogGifButton() {
-                var btn = document.getElementById('exportGifButton');
-                if (!btn) return;
-                var show = !!(vhsApi && vhsApi.canExportGif && vhsApi.canExportGif());
-                btn.style.display = show ? '' : 'none';
-            }
-            if (window.HeiseiVHS) {
-                vhsApi = window.HeiseiVHS.mount({
-                    imgEl: document.getElementById('img-avatar'),
-                    previewHost: document.getElementById('imgs'),
-                    panelHost: document.getElementById('vhs-panel-host'),
-                    theme: 'aero',
-                    onStateChange: syncDialogGifButton
-                });
-                syncDialogGifButton();
-            }
+            var vhsApi = window.JwExport ? window.JwExport.mountVhs({
+                imgEl: document.getElementById('img-avatar'),
+                previewHost: document.getElementById('imgs'),
+                panelHost: document.getElementById('vhs-panel-host'),
+                theme: 'aero'
+            }) : null;
         </script>
         <br>
         <div id="ctrls_2">
@@ -452,69 +442,18 @@
             <button id="exportGifButton" type="button" style="display:none;">导出对话框为动图 (GIF)</button>
         </div>
         <script>
-            function imgSrcToDataURL(img) {
-                var src = img.getAttribute('src') || '';
-                if (!src || src.indexOf('data:') === 0) {
-                    return Promise.resolve();
-                }
-                return fetch(src).then(function(res) {
-                    if (!res.ok) throw new Error('fetch image failed: ' + res.status);
-                    return res.blob();
-                }).then(function(blob) {
-                    return new Promise(function(resolve, reject) {
-                        var reader = new FileReader();
-                        reader.onload = function() { resolve(reader.result); };
-                        reader.onerror = reject;
-                        reader.readAsDataURL(blob);
-                    });
-                }).then(function(dataUrl) {
-                    return new Promise(function(resolve, reject) {
-                        img.onload = function() { resolve(); };
-                        img.onerror = reject;
-                        img.removeAttribute('crossorigin');
-                        img.src = dataUrl;
-                    });
-                }).catch(function(err) {
-                    console.warn('导出前转换图片失败:', src, err);
-                });
-            }
-
-            function ensureExportImagesClean(root) {
-                var imgs = root.querySelectorAll('img');
-                var tasks = [];
-                for (var i = 0; i < imgs.length; i++) {
-                    tasks.push(imgSrcToDataURL(imgs[i]));
-                }
-                return Promise.all(tasks);
-            }
-
-            // 与桌面参考导出接近的固定版心（px），避免手机 width:25% 导致比例错乱
-            var EXPORT_LAYOUT_WIDTH = 380;
-
-            function downloadCanvasPng(canvas, filename) {
-                function trigger(href) {
+            var EXPORT_LAYOUT_WIDTH = (window.JwExport && window.JwExport.LAYOUT_WIDTH) || 380;
+            var ensureExportImagesClean = window.JwExport
+                ? window.JwExport.ensureExportImagesClean
+                : function () { return Promise.resolve(); };
+            var downloadCanvasPng = window.JwExport
+                ? window.JwExport.downloadCanvasPng
+                : function (canvas, filename) {
                     var link = document.createElement('a');
-                    link.href = href;
+                    link.href = canvas.toDataURL('image/png');
                     link.download = filename || 'exported-image.png';
-                    link.rel = 'noopener';
-                    document.body.appendChild(link);
                     link.click();
-                    document.body.removeChild(link);
-                }
-                if (canvas.toBlob) {
-                    canvas.toBlob(function(blob) {
-                        if (!blob) {
-                            trigger(canvas.toDataURL('image/png'));
-                            return;
-                        }
-                        var url = URL.createObjectURL(blob);
-                        trigger(url);
-                        setTimeout(function() { URL.revokeObjectURL(url); }, 4000);
-                    }, 'image/png');
-                } else {
-                    trigger(canvas.toDataURL('image/png'));
-                }
-            }
+                };
 
             // 仅稳定处理：版心宽度、外框、标题栏、圆形标题钮、底栏 .new_btn
             function applyExportChrome(root) {
@@ -659,79 +598,16 @@
                 });
             });
 
-            document.getElementById('exportGifButton').addEventListener('click', function() {
-                var btn = document.getElementById('exportGifButton');
-                if (!vhsApi || !vhsApi.canExportGif || !vhsApi.canExportGif()) {
-                    alert('请启用 HEISEI-VHS、选择图片，并取消「暂停动画」后再导出 GIF。');
-                    syncDialogGifButton();
-                    return;
-                }
-                if (!window.JwGif || typeof window.JwGif.encodeFromCanvases !== 'function') {
-                    alert('GIF 编码器未加载，请刷新页面后重试。');
-                    return;
-                }
-                var element = document.getElementById('jw_aero');
-                var restoreChrome = null;
-                var frameCount = 16;
-                var durationSec = 2;
-                var delayMs = 120;
-                var frames = [];
-                btn.disabled = true;
-                btn.textContent = '导出中…';
-                var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-
-                fontsReady.then(function() {
-                    return ensureExportImagesClean(element);
-                }).then(function() {
-                    vhsApi.beginCapture();
-                    restoreChrome = applyExportChrome(element);
-                    element.offsetHeight;
-                    var i = 0;
-                    function captureNext() {
-                        if (i >= frameCount) return Promise.resolve(frames);
-                        vhsApi.renderAtTime((i / frameCount) * durationSec);
-                        element.offsetHeight;
-                        return html2canvas(element, {
-                            useCORS: true,
-                            allowTaint: false,
-                            backgroundColor: null,
-                            scale: 2,
-                            scrollX: 0,
-                            scrollY: 0,
-                            windowWidth: EXPORT_LAYOUT_WIDTH,
-                            windowHeight: Math.max(element.scrollHeight, element.offsetHeight)
-                        }).then(function(canvas) {
-                            frames.push(canvas);
-                            i += 1;
-                            return new Promise(function(r) { setTimeout(r, 0); }).then(captureNext);
-                        });
-                    }
-                    return captureNext();
-                }).then(function(captured) {
-                    if (restoreChrome) restoreChrome();
-                    restoreChrome = null;
-                    if (vhsApi) vhsApi.endCapture();
-                    var blob = window.JwGif.encodeFromCanvases(captured, delayMs);
-                    var url = URL.createObjectURL(blob);
-                    var link = document.createElement('a');
-                    link.href = url;
-                    link.download = 'exported-dialog.gif';
-                    link.rel = 'noopener';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    setTimeout(function() { URL.revokeObjectURL(url); }, 4000);
-                }).catch(function(err) {
-                    if (restoreChrome) restoreChrome();
-                    if (vhsApi) vhsApi.endCapture();
-                    console.error(err);
-                    alert('导出 GIF 失败：' + (err && err.message ? err.message : 'unknown'));
-                }).then(function() {
-                    btn.disabled = false;
-                    btn.textContent = '导出对话框为动图 (GIF)';
-                    syncDialogGifButton();
+            if (window.JwExport) {
+                window.JwExport.bindDialogGifExport({
+                    elementId: 'jw_aero',
+                    getVhsApi: function () { return vhsApi; },
+                    applyChrome: applyExportChrome,
+                    filename: 'exported-dialog.gif',
+                    scale: 2,
+                    useLayoutWidth: true
                 });
-            });
+            }
         </script>
         <!-- <script>
             document.getElementById('exportButton').addEventListener('click', function() {

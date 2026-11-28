@@ -9,6 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="../vhs/jw-gif.js"></script>
+    <script src="../vhs/jw-export.js"></script>
     <script src="../vhs/heisei-vhs.js"></script>
 </head>
 <body class="osx-desktop ver-jaguar">
@@ -148,23 +149,12 @@
         <br>
         <div id="vhs-panel-host"></div>
         <script>
-            var vhsApi = null;
-            function syncDialogGifButton() {
-                var btn = document.getElementById("exportGifButton");
-                if (!btn) return;
-                var show = !!(vhsApi && vhsApi.canExportGif && vhsApi.canExportGif());
-                btn.style.display = show ? "" : "none";
-            }
-            if (window.HeiseiVHS) {
-                vhsApi = window.HeiseiVHS.mount({
-                    imgEl: document.getElementById("img-avatar"),
-                    previewHost: document.getElementById("preview-host"),
-                    panelHost: document.getElementById("vhs-panel-host"),
-                    theme: "aero",
-                    onStateChange: syncDialogGifButton
-                });
-                syncDialogGifButton();
-            }
+            var vhsApi = window.JwExport ? window.JwExport.mountVhs({
+                imgEl: document.getElementById("img-avatar"),
+                previewHost: document.getElementById("preview-host"),
+                panelHost: document.getElementById("vhs-panel-host"),
+                theme: "aero"
+            }) : null;
         </script>
 
         <br>
@@ -370,72 +360,16 @@
                 });
             });
 
-            document.getElementById("exportGifButton").addEventListener("click", function () {
-                var btn = document.getElementById("exportGifButton");
-                if (!vhsApi || !vhsApi.canExportGif || !vhsApi.canExportGif()) {
-                    alert("请启用 HEISEI-VHS、选择图片，并取消「暂停动画」后再导出 GIF。");
-                    syncDialogGifButton();
-                    return;
-                }
-                if (!window.JwGif || typeof window.JwGif.encodeFromCanvases !== "function") {
-                    alert("GIF 编码器未加载，请刷新页面后重试。");
-                    return;
-                }
-                var element = document.getElementById("jw_osx");
-                var restoreAll = null;
-                var frameCount = 16;
-                var durationSec = 2;
-                var delayMs = 120;
-                var frames = [];
-                btn.disabled = true;
-                btn.textContent = "导出中…";
-
-                Promise.resolve().then(function () {
-                    vhsApi.beginCapture();
-                    restoreAll = applyOsxExportChrome(element);
-                    element.offsetHeight;
-                    var i = 0;
-                    function captureNext() {
-                        if (i >= frameCount) return Promise.resolve(frames);
-                        vhsApi.renderAtTime((i / frameCount) * durationSec);
-                        element.offsetHeight;
-                        return html2canvas(element, {
-                            useCORS: true,
-                            allowTaint: false,
-                            backgroundColor: null,
-                            scale: 2
-                        }).then(function (canvas) {
-                            frames.push(canvas);
-                            i += 1;
-                            return new Promise(function (r) { setTimeout(r, 0); }).then(captureNext);
-                        });
-                    }
-                    return captureNext();
-                }).then(function (captured) {
-                    if (restoreAll) restoreAll();
-                    restoreAll = null;
-                    if (vhsApi) vhsApi.endCapture();
-                    var blob = window.JwGif.encodeFromCanvases(captured, delayMs);
-                    var url = URL.createObjectURL(blob);
-                    var link = document.createElement("a");
-                    link.href = url;
-                    link.download = "macosx-exported.gif";
-                    link.rel = "noopener";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-                }).catch(function (err) {
-                    if (restoreAll) restoreAll();
-                    if (vhsApi) vhsApi.endCapture();
-                    console.error(err);
-                    alert("导出 GIF 失败：" + (err && err.message ? err.message : "unknown"));
-                }).then(function () {
-                    btn.disabled = false;
-                    btn.textContent = "导出对话框为动图 (GIF)";
-                    syncDialogGifButton();
+            if (window.JwExport) {
+                window.JwExport.bindDialogGifExport({
+                    elementId: "jw_osx",
+                    getVhsApi: function () { return vhsApi; },
+                    applyChrome: applyOsxExportChrome,
+                    filename: "macosx-exported.gif",
+                    scale: 2,
+                    useLayoutWidth: false
                 });
-            });
+            }
         </script>
 
         <div class="osx-links">
