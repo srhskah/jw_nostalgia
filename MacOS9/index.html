@@ -8,6 +8,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="../vhs/jw-gif.js"></script>
     <script src="../vhs/heisei-vhs.js"></script>
 </head>
 <body class="os9-desktop">
@@ -152,69 +153,73 @@
         <br>
         <div id="vhs-panel-host"></div>
         <script>
+            var vhsApi = null;
+            function syncDialogGifButton() {
+                var btn = document.getElementById("exportGifButton");
+                if (!btn) return;
+                var show = !!(vhsApi && vhsApi.canExportGif && vhsApi.canExportGif());
+                btn.style.display = show ? "" : "none";
+            }
             if (window.HeiseiVHS) {
-                window.HeiseiVHS.mount({
+                vhsApi = window.HeiseiVHS.mount({
                     imgEl: document.getElementById("img-avatar"),
                     previewHost: document.getElementById("preview-host"),
                     panelHost: document.getElementById("vhs-panel-host"),
-                    theme: "classic"
+                    theme: "classic",
+                    onStateChange: syncDialogGifButton
                 });
+                syncDialogGifButton();
             }
         </script>
 
         <br>
-        <button type="button" id="exportButton">导出对话框为图片</button>
+        <div id="export-actions" style="display:inline-flex;flex-wrap:wrap;gap:0.5em;align-items:center;justify-content:center;">
+            <button type="button" id="exportButton">导出对话框为图片</button>
+            <button type="button" id="exportGifButton" style="display:none;">导出对话框为动图 (GIF)</button>
+        </div>
         <script>
-            document.getElementById("exportButton").addEventListener("click", function () {
-                var element = document.getElementById("jw_os9");
-                var backups = [];
+            // Platinum 自定义按钮：chrome 烘焙成 PNG（对齐网页浮雕），文字光学居中
+            function paintPlatinumFace(w, h) {
+                var c = document.createElement("canvas");
+                c.width = w;
+                c.height = h;
+                var ctx = c.getContext("2d");
+                function roundRect(x, y, rw, rh, rad) {
+                    var rr = Math.min(rad, rw / 2, rh / 2);
+                    ctx.beginPath();
+                    if (ctx.roundRect) ctx.roundRect(x, y, rw, rh, rr);
+                    else ctx.rect(x, y, rw, rh);
+                    ctx.closePath();
+                }
+                ctx.fillStyle = "#dddddd";
+                roundRect(0, 0, w, h, 6);
+                ctx.fill();
+                ctx.strokeStyle = "#000000";
+                ctx.lineWidth = 2;
+                roundRect(1, 1, w - 2, h - 2, 5);
+                ctx.stroke();
+                ctx.strokeStyle = "#ffffff";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(4, h - 5);
+                ctx.lineTo(4, 4);
+                ctx.lineTo(w - 5, 4);
+                ctx.stroke();
+                ctx.strokeStyle = "#666666";
+                ctx.beginPath();
+                ctx.moveTo(w - 4, 5);
+                ctx.lineTo(w - 4, h - 4);
+                ctx.lineTo(5, h - 4);
+                ctx.stroke();
+                return c.toDataURL("image/png");
+            }
 
+            function applyOs9ExportChrome(element) {
+                var backups = [];
                 function backup(el) {
                     if (!el) return;
                     backups.push({ el: el, cssText: el.style.cssText });
                 }
-                function restoreAll() {
-                    backups.forEach(function (b) {
-                        b.el.style.cssText = b.cssText;
-                    });
-                }
-
-                // Platinum 自定义按钮：chrome 烘焙成 PNG（对齐网页浮雕），文字光学居中
-                function paintPlatinumFace(w, h) {
-                    var c = document.createElement("canvas");
-                    c.width = w;
-                    c.height = h;
-                    var ctx = c.getContext("2d");
-                    function roundRect(x, y, rw, rh, rad) {
-                        var rr = Math.min(rad, rw / 2, rh / 2);
-                        ctx.beginPath();
-                        if (ctx.roundRect) ctx.roundRect(x, y, rw, rh, rr);
-                        else ctx.rect(x, y, rw, rh);
-                        ctx.closePath();
-                    }
-                    ctx.fillStyle = "#dddddd";
-                    roundRect(0, 0, w, h, 6);
-                    ctx.fill();
-                    ctx.strokeStyle = "#000000";
-                    ctx.lineWidth = 2;
-                    roundRect(1, 1, w - 2, h - 2, 5);
-                    ctx.stroke();
-                    ctx.strokeStyle = "#ffffff";
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(4, h - 5);
-                    ctx.lineTo(4, 4);
-                    ctx.lineTo(w - 5, 4);
-                    ctx.stroke();
-                    ctx.strokeStyle = "#666666";
-                    ctx.beginPath();
-                    ctx.moveTo(w - 4, 5);
-                    ctx.lineTo(w - 4, h - 4);
-                    ctx.lineTo(5, h - 4);
-                    ctx.stroke();
-                    return c.toDataURL("image/png");
-                }
-
                 element.querySelectorAll("#box button, #box .new_btn").forEach(function (nb) {
                     backup(nb);
                     var w = Math.max(58, Math.ceil(nb.offsetWidth) || 58);
@@ -245,7 +250,16 @@
                     nb.style.position = "relative";
                     nb.style.top = "-1px";
                 });
+                return function restoreAll() {
+                    backups.forEach(function (b) {
+                        b.el.style.cssText = b.cssText;
+                    });
+                };
+            }
 
+            document.getElementById("exportButton").addEventListener("click", function () {
+                var element = document.getElementById("jw_os9");
+                var restoreAll = applyOs9ExportChrome(element);
                 element.offsetHeight;
                 html2canvas(element, {
                     useCORS: true,
@@ -262,6 +276,73 @@
                     restoreAll();
                     console.error(err);
                     alert("导出失败，请确认图片可同源访问后再试。");
+                });
+            });
+
+            document.getElementById("exportGifButton").addEventListener("click", function () {
+                var btn = document.getElementById("exportGifButton");
+                if (!vhsApi || !vhsApi.canExportGif || !vhsApi.canExportGif()) {
+                    alert("请启用 HEISEI-VHS、选择图片，并取消「暂停动画」后再导出 GIF。");
+                    syncDialogGifButton();
+                    return;
+                }
+                if (!window.JwGif || typeof window.JwGif.encodeFromCanvases !== "function") {
+                    alert("GIF 编码器未加载，请刷新页面后重试。");
+                    return;
+                }
+                var element = document.getElementById("jw_os9");
+                var restoreAll = null;
+                var frameCount = 16;
+                var durationSec = 2;
+                var delayMs = 120;
+                var frames = [];
+                btn.disabled = true;
+                btn.textContent = "导出中…";
+
+                Promise.resolve().then(function () {
+                    vhsApi.beginCapture();
+                    restoreAll = applyOs9ExportChrome(element);
+                    element.offsetHeight;
+                    var i = 0;
+                    function captureNext() {
+                        if (i >= frameCount) return Promise.resolve(frames);
+                        vhsApi.renderAtTime((i / frameCount) * durationSec);
+                        element.offsetHeight;
+                        return html2canvas(element, {
+                            useCORS: true,
+                            allowTaint: false,
+                            backgroundColor: null,
+                            scale: 2
+                        }).then(function (canvas) {
+                            frames.push(canvas);
+                            i += 1;
+                            return new Promise(function (r) { setTimeout(r, 0); }).then(captureNext);
+                        });
+                    }
+                    return captureNext();
+                }).then(function (captured) {
+                    if (restoreAll) restoreAll();
+                    restoreAll = null;
+                    if (vhsApi) vhsApi.endCapture();
+                    var blob = window.JwGif.encodeFromCanvases(captured, delayMs);
+                    var url = URL.createObjectURL(blob);
+                    var link = document.createElement("a");
+                    link.href = url;
+                    link.download = "macos9-exported.gif";
+                    link.rel = "noopener";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+                }).catch(function (err) {
+                    if (restoreAll) restoreAll();
+                    if (vhsApi) vhsApi.endCapture();
+                    console.error(err);
+                    alert("导出 GIF 失败：" + (err && err.message ? err.message : "unknown"));
+                }).then(function () {
+                    btn.disabled = false;
+                    btn.textContent = "导出对话框为动图 (GIF)";
+                    syncDialogGifButton();
                 });
             });
         </script>

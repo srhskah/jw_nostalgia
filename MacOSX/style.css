@@ -466,7 +466,8 @@ body.ver-mavericks .osx-dock {
 .vhs-ctrl-row { display: flex; align-items: center; gap: 0.35em; margin: 0.25em 0; }
 .vhs-ctrl-name { flex: 0 0 7.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .vhs-ctrl-row input[type="range"] { flex: 1 1 auto; min-width: 0; }
-.vhs-ctrl-row input[type="number"] { width: 4em; box-sizing: border-box; }
+.vhs-ctrl-row input[type="number"],
+.vhs-ctrl-row input[data-vhs-key]:not([type="range"]) { width: 4em; box-sizing: border-box; }
 .vhs-tools { margin-top: 0.5em; text-align: center; }
 .vhs-tools button { margin: 0.15em; }
 .vhs-tools label { display: inline-block; margin-right: 0.6em; }

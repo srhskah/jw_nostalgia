@@ -169,7 +169,8 @@ button,
     flex: 1 1 auto;
     min-width: 0;
 }
-.vhs-ctrl-row input[type="number"] {
+.vhs-ctrl-row input[type="number"],
+.vhs-ctrl-row input[data-vhs-key]:not([type="range"]) {
     width: 4em;
     box-sizing: border-box;
 }

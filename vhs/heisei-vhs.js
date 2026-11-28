@@ -420,23 +420,41 @@
       range.value = String(params[meta.key]);
       range.setAttribute('data-vhs-key', meta.key);
       var num = document.createElement('input');
-      num.type = 'number';
-      num.min = String(meta.min);
-      num.max = String(meta.max);
-      num.step = String(meta.step);
+      // text + inputmode：避免 type=number 在部分浏览器里输入小数点被吃掉
+      num.type = 'text';
+      num.inputMode = 'decimal';
+      num.autocomplete = 'off';
+      num.spellcheck = false;
+      num.setAttribute('data-vhs-min', String(meta.min));
+      num.setAttribute('data-vhs-max', String(meta.max));
+      num.setAttribute('data-vhs-step', String(meta.step));
       num.value = String(params[meta.key]);
       num.setAttribute('data-vhs-key', meta.key);
-      function onChange(v) {
+      // syncNum=false：输入过程中不回写 num，否则 "0." / "1.0" 会被 parseFloat 清掉小数点
+      function applyValue(v, syncNum) {
         var n = parseFloat(v);
-        if (isNaN(n)) return;
+        if (isNaN(n)) return false;
         n = Math.min(meta.max, Math.max(meta.min, n));
         params[meta.key] = n;
         range.value = String(n);
-        num.value = String(n);
+        if (syncNum) num.value = String(n);
         requestDraw(true);
+        return true;
       }
-      range.addEventListener('input', function () { onChange(range.value); });
-      num.addEventListener('input', function () { onChange(num.value); });
+      function isDecimalDraft(v) {
+        return v === '' || v === '-' || v === '.' || v === '-.' || /^-?\d+\.$/.test(v);
+      }
+      range.addEventListener('input', function () { applyValue(range.value, true); });
+      num.addEventListener('input', function () {
+        var v = num.value;
+        if (isDecimalDraft(v)) return;
+        applyValue(v, false);
+      });
+      num.addEventListener('change', function () {
+        if (!applyValue(num.value, true)) {
+          num.value = String(params[meta.key]);
+        }
+      });
       row.appendChild(name);
       row.appendChild(range);
       row.appendChild(num);
